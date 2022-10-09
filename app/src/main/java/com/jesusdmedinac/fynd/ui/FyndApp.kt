@@ -148,9 +148,8 @@ fun FyndApp() {
                         modifier = Modifier.padding(16.dp)
                     ) {
                         items(total) { cell ->
-                            val isColumnHeader = cell in 0 until columns
-                            val cellBetweenColumns = cell.toDouble() / columns.toDouble()
-                            val isRowHeader = cellBetweenColumns % 1 == 0.0
+                            val isColumnHeader = fyndAppViewModel.isCellRowHeader(cell, columns)
+                            val isRowHeader = fyndAppViewModel.isCellColumnHeader(cell, columns)
                             if (cell == 0) return@items
                             if (isColumnHeader || isRowHeader) {
                                 Box(
@@ -166,13 +165,29 @@ fun FyndApp() {
                                     )
                                 }
                             } else {
+                                val occupiedPlace = FyndAppViewModel.State.Place(
+                                    cell,
+                                    FyndAppViewModel.State.Place.State.Occupied
+                                )
+                                val buttonBackground = MaterialTheme.colorScheme.run {
+                                    if (fyndAppState.isPlaceOccupied(occupiedPlace))
+                                        tertiary
+                                    else primary
+                                }
                                 Button(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(16.dp))
-                                        .size(42.dp)
-                                        .background(MaterialTheme.colorScheme.primary),
-                                    onClick = {}
-                                ) {}
+                                        .size(42.dp),
+                                    onClick = {
+                                        fyndAppViewModel.onPlaceClicked(
+                                            occupiedPlace
+                                        )
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonBackground
+                                    ),
+                                    content = {}
+                                )
                             }
                         }
                     }

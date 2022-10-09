@@ -56,9 +56,23 @@ class FyndAppViewModel @Inject constructor() :
         }
     }
 
-    fun onPlaceClicked() {
+    fun onPlaceClicked(place: State.Place) {
         intent {
-
+            reduce {
+                val places = state.places.toMutableSet()
+                val newPlaces = places
+                    .apply {
+                        val isOccupied = (place in state.places
+                                && place.state == State.Place.State.Occupied)
+                        if (isOccupied) {
+                            remove(place)
+                        } else {
+                            add(place)
+                        }
+                    }
+                state.copy(places = newPlaces)
+            }
+            println("dani ${state.places}")
         }
     }
 
@@ -78,11 +92,19 @@ class FyndAppViewModel @Inject constructor() :
         }
     }
 
+    fun isCellRowHeader(cell: Int, columns: Int): Boolean {
+        val cellBetweenColumns = cell.toDouble() / columns.toDouble()
+        return cellBetweenColumns % 1 == 0.0
+    }
+
+    fun isCellColumnHeader(cell: Int, columns: Int): Boolean = cell in 0 until columns
+
     data class State(
-        val columnsText: String = "1",
-        val rowsText: String = "1",
+        val columnsText: String = "0",
+        val rowsText: String = "0",
         val invalidColumnsLimit: Boolean = false,
         val invalidRowsLimit: Boolean = false,
+        val places: Set<Place> = emptySet()
     ) {
         val total: Int
             get() = if (columnsText.isEmpty() || rowsText.isEmpty()) 0
@@ -101,6 +123,17 @@ class FyndAppViewModel @Inject constructor() :
                 rowsText.toInt() + 1
             }
 
+        fun isPlaceOccupied(place: Place): Boolean = place in places
+
+        data class Place(
+            val cell: Int,
+            val state: State
+        ) {
+            sealed class State {
+                object Occupied : State()
+                object Unavailable : State()
+            }
+        }
     }
 
     private suspend fun SimpleSyntax<State, SideEffect>.workAroundPostSideEffect(sideEffect: SideEffect) {
