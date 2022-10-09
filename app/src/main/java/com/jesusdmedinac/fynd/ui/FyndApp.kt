@@ -1,6 +1,7 @@
 package com.jesusdmedinac.fynd.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -143,9 +145,9 @@ fun FyndApp() {
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(columns),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(1.dp),
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         items(total) { cell ->
                             val isColumnHeader = fyndAppViewModel.isCellRowHeader(cell, columns)
@@ -154,8 +156,7 @@ fun FyndApp() {
                             if (isColumnHeader || isRowHeader) {
                                 Box(
                                     modifier = Modifier
-                                        .size(42.dp)
-                                        .clip(RoundedCornerShape(16.dp)),
+                                        .size(42.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     val cellText = fyndAppViewModel.cellText(cell, columns)
@@ -171,23 +172,24 @@ fun FyndApp() {
                                 )
                                 val buttonBackground = MaterialTheme.colorScheme.run {
                                     if (fyndAppState.isPlaceOccupied(occupiedPlace))
-                                        tertiary
-                                    else primary
+                                        primary
+                                    else onPrimary
                                 }
-                                Button(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .size(42.dp),
-                                    onClick = {
-                                        fyndAppViewModel.onPlaceClicked(
-                                            occupiedPlace
-                                        )
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = buttonBackground
-                                    ),
-                                    content = {}
-                                )
+                                    Button(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        onClick = {
+                                            fyndAppViewModel.onPlaceClicked(
+                                                occupiedPlace
+                                            )
+                                        },
+                                        border = BorderStroke(4.dp, MaterialTheme.colorScheme.primary),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = buttonBackground,
+                                        ),
+                                        content = {},
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
                             }
                         }
                     }
