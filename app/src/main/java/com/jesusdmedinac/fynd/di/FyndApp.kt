@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd
+package com.jesusdmedinac.fynd.di
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
