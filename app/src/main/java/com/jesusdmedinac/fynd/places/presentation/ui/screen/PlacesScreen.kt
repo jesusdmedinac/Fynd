@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.ui.screen
+package com.jesusdmedinac.fynd.main.presentation.ui.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -17,8 +17,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.jesusdmedinac.fynd.ui.theme.FyndTheme
-import com.jesusdmedinac.fynd.viewmodel.PlacesScreenViewModel
+import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.places.presentation.viewmodel.PlacesScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable

@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.ui.navigation
+package com.jesusdmedinac.fynd.main.presentation.ui.navigation
 
 sealed class NavItem(
     val baseRoute: String,

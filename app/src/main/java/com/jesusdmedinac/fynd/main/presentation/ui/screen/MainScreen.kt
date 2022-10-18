@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.ui.screen
+package com.jesusdmedinac.fynd.main.presentation.ui.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -8,8 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.jesusdmedinac.fynd.ui.theme.FyndTheme
-import com.jesusdmedinac.fynd.viewmodel.MainScreenViewModel
+import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.main.presentation.viewmodel.MainScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable

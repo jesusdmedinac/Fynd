@@ -1,6 +1,5 @@
 package com.jesusdmedinac.fynd.onboarding.presentation.ui.screen
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -12,14 +11,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.qrscreen.QRDrawer
-import com.jesusdmedinac.fynd.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.onboarding.presentation.viewmodel.QRScreenViewModel
 import kotlin.random.Random
 
 @ExperimentalMaterial3Api
 @Composable
-fun QRScreen() {
+fun QRScreen(
+    qrScreenState: QRScreenViewModel.State = QRScreenViewModel.State(),
+    qrScreenSideEffect: QRScreenViewModel.SideEffect = QRScreenViewModel.SideEffect.Idle,
+    qrScreenBehavior: QRScreenViewModel.Behavior
+) {
+    qrScreenBehavior.generateNewCode()
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
@@ -28,9 +32,9 @@ fun QRScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            var text: String by remember { mutableStateOf(Random.nextInt().toString()) }
+            val qrCode = qrScreenState.qrCode
             QRDrawer(
-                text,
+                qrCode,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.3f)
@@ -49,6 +53,12 @@ fun QRScreen() {
 @Preview
 fun QRScreenPreview() {
     FyndTheme {
-        QRScreen()
+        QRScreen(
+            qrScreenBehavior = object : QRScreenViewModel.Behavior {
+                override fun generateNewCode() {
+                    TODO("Not yet implemented")
+                }
+            }
+        )
     }
 }

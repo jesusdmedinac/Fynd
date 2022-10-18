@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.ui
+package com.jesusdmedinac.fynd.main.presentation.ui
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,12 +8,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.OnboardingMainScreen
-import com.jesusdmedinac.fynd.ui.navigation.NavItem
-import com.jesusdmedinac.fynd.ui.screen.MainScreen
-import com.jesusdmedinac.fynd.ui.screen.PlacesScreen
-import com.jesusdmedinac.fynd.ui.theme.FyndTheme
-import com.jesusdmedinac.fynd.viewmodel.MainScreenViewModel
-import com.jesusdmedinac.fynd.viewmodel.PlacesScreenViewModel
+import com.jesusdmedinac.fynd.main.presentation.ui.navigation.NavItem
+import com.jesusdmedinac.fynd.main.presentation.ui.screen.MainScreen
+import com.jesusdmedinac.fynd.main.presentation.ui.screen.PlacesScreen
+import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.main.presentation.viewmodel.MainScreenViewModel
+import com.jesusdmedinac.fynd.places.presentation.viewmodel.PlacesScreenViewModel
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.navigation.NavItem as OnboardingNavItem
 
 @ExperimentalMaterial3Api

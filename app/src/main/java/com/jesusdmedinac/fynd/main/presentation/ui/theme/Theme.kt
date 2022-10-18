@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.ui.theme
+package com.jesusdmedinac.fynd.main.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.viewmodel
+package com.jesusdmedinac.fynd.main.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

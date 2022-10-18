@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd
+package com.jesusdmedinac.fynd.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,8 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.jesusdmedinac.fynd.ui.FyndApp
-import com.jesusdmedinac.fynd.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.main.presentation.ui.FyndApp
+import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @ExperimentalMaterial3Api

@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.ui.theme
+package com.jesusdmedinac.fynd.main.presentation.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
