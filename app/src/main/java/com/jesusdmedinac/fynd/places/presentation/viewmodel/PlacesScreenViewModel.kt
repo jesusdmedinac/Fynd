@@ -131,10 +131,11 @@ class PlacesScreenViewModel @Inject constructor() :
             val alphabetLetterIndex = alphabetLetterCalculatedIndex % amountOfAlphabetLetters
 
             return when {
-                isRowHeader -> alphabetLetters[alphabetLetterIndex]
-                    .toString()
-                    .uppercase()
-                else -> cell.toString()
+                isRowHeader -> (alphabetLetterIndex + 1).toString()
+                    //alphabetLetters[alphabetLetterIndex]
+                //.toString()
+            //.uppercase()
+            else -> cell.toString()
             }
         }
 

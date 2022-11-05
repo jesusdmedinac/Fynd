@@ -17,7 +17,7 @@ fun QRDrawer(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    Canvas(modifier = modifier.fillMaxSize()) {
+    Canvas(modifier = modifier) {
         val width = ceil(size.width).toInt()
         val height = ceil(size.height).toInt()
         generateQrImage(text, width, height)
@@ -29,8 +29,7 @@ fun QRDrawer(
 fun generateQrImage(text: String, width: Int, height: Int): Bitmap? {
     //inputValue = edtValue?.text.toString().trim { it <= ' ' }
     if (text.isNotEmpty()) {
-        var smallerDimension = if (width < height) width else height
-        smallerDimension = smallerDimension * 3 / 4
+        val smallerDimension = if (width < height) width else height
 
         val qrgEncoder = QRGEncoder(
             text,

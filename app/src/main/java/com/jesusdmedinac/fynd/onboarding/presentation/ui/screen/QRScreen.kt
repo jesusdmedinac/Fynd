@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.qrscreen.QRDrawer
 import com.jesusdmedinac.fynd.onboarding.presentation.viewmodel.QRScreenViewModel
@@ -32,16 +33,17 @@ fun QRScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            Button(onClick = qrScreenBehavior::onStartServingClick) {
+                Text(text = "¡Comenzar a servir!")
+            }
             val qrCode = qrScreenState.qrCode
             QRDrawer(
                 qrCode,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.3f)
-                    .background(Color.Red)
+                    .size(512.dp)
             )
             Text(text = "Comparte tu código de líder")
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = qrScreenBehavior::onScanCodeClick) {
                 Text(text = "O escanea el código del líder")
             }
         }
@@ -56,6 +58,14 @@ fun QRScreenPreview() {
         QRScreen(
             qrScreenBehavior = object : QRScreenViewModel.Behavior {
                 override fun generateNewCode() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onStartServingClick() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onScanCodeClick() {
                     TODO("Not yet implemented")
                 }
             }
