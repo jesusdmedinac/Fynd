@@ -1,6 +1,7 @@
 package com.jesusdmedinac.fynd.main.presentation.ui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -15,75 +16,70 @@ import com.jesusdmedinac.fynd.main.presentation.ui.screen.MainScreen
 import com.jesusdmedinac.fynd.main.presentation.ui.screen.PlacesScreen
 import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.main.presentation.viewmodel.MainScreenViewModel
+import com.jesusdmedinac.fynd.onboarding.domain.usecase.HostQrCodeUseCase
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.OnboardingScreen
+import com.jesusdmedinac.fynd.onboarding.presentation.viewmodel.QRScreenViewModel
 import com.jesusdmedinac.fynd.places.presentation.viewmodel.PlacesScreenViewModel
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.navigation.NavItem as OnboardingNavItem
 
 @ExperimentalMaterial3Api
 @Composable
-fun FyndApp() {
+fun FyndApp(
+    mainScreenViewModel: MainScreenViewModel,
+    qrScreenViewModel: QRScreenViewModel,
+    placesScreenViewModel: PlacesScreenViewModel,
+    launchScanner: () -> Unit,
+) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = NavItem.MainScreen.baseRoute) {
-        listOf(
-            NavItem.MainScreen,
-            NavItem.PlacesNavItem,
-            NavItem.ScanCodeNavItem,
-        ).forEach {
-            when (it) {
-                NavItem.MainScreen -> composable(it.baseRoute) {
-                    val mainScreenViewModel: MainScreenViewModel = hiltViewModel()
+        composable(NavItem.MainScreen.baseRoute) {
+            val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
+            val mainScreenSideEffect by mainScreenViewModel
+                .container
+                .sideEffectFlow
+                .collectAsState(initial = MainScreenViewModel.SideEffect.Idle)
+            val behavior = mainScreenViewModel.behavior
 
-                    val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
-                    val mainScreenSideEffect by mainScreenViewModel
-                        .container
-                        .sideEffectFlow
-                        .collectAsState(initial = MainScreenViewModel.SideEffect.Idle)
-                    val behavior = mainScreenViewModel.behavior
-
-                    LaunchedEffect(mainScreenSideEffect) {
-                        when (mainScreenSideEffect) {
-                            MainScreenViewModel.SideEffect.NavigateToOnboardingScreen -> {
-                                navController.navigate(OnboardingNavItem.OnboardingMainScreen.baseRoute)
-                            }
-                            else -> Unit
-                        }
+            LaunchedEffect(mainScreenSideEffect) {
+                when (mainScreenSideEffect) {
+                    MainScreenViewModel.SideEffect.NavigateToOnboardingScreen -> {
+                        navController.navigate(OnboardingNavItem.OnboardingMainScreen.baseRoute)
                     }
-
-                    MainScreen(
-                        mainScreenState,
-                        mainScreenSideEffect,
-                        behavior
-                    )
-                }
-                NavItem.PlacesNavItem -> composable(it.baseRoute) {
-                    val placesScreenViewModel: PlacesScreenViewModel = hiltViewModel()
-
-                    val placesScreenState by placesScreenViewModel.container.stateFlow.collectAsState()
-                    val placesScreenSideEffect by placesScreenViewModel
-                        .container
-                        .sideEffectFlow
-                        .collectAsState(initial = PlacesScreenViewModel.SideEffect.Idle)
-                    val behavior = placesScreenViewModel.behavior
-
-                    PlacesScreen(
-                        placesScreenState,
-                        placesScreenSideEffect,
-                        behavior,
-                    )
-                }
-                NavItem.ScanCodeNavItem -> composable(it.baseRoute) {
-
+                    else -> Unit
                 }
             }
+
+            MainScreen(
+                mainScreenState,
+                mainScreenSideEffect,
+                behavior
+            )
+            Text(text = "")
+        }
+
+        composable(NavItem.PlacesNavItem.baseRoute) {
+            val placesScreenState by placesScreenViewModel.container.stateFlow.collectAsState()
+            val placesScreenSideEffect by placesScreenViewModel
+                .container
+                .sideEffectFlow
+                .collectAsState(initial = PlacesScreenViewModel.SideEffect.Idle)
+            val behavior = placesScreenViewModel.behavior
+
+            PlacesScreen(
+                placesScreenState,
+                placesScreenSideEffect,
+                behavior,
+            )
         }
 
         composable(OnboardingNavItem.OnboardingMainScreen.baseRoute) {
             OnboardingScreen(
+                qrScreenViewModel = qrScreenViewModel,
                 onNavigateToPlacesScreenClick = {
                     navController.navigate(NavItem.PlacesNavItem.baseRoute)
                 },
                 onNavigateToScanCodeScreenClick = {
-                    navController.navigate(NavItem.ScanCodeNavItem.baseRoute)
+                    launchScanner()
                 },
             )
         }
@@ -95,6 +91,16 @@ fun FyndApp() {
 @Preview
 fun FyndAppPreview() {
     FyndTheme {
-        FyndApp()
+        FyndApp(
+            mainScreenViewModel = MainScreenViewModel(),
+            qrScreenViewModel = QRScreenViewModel(
+                hostQrCodeUseCase = object : HostQrCodeUseCase {
+                    override fun invoke(): String {
+                        TODO("Not yet implemented")
+                    }
+                }
+            ),
+            placesScreenViewModel = PlacesScreenViewModel()
+        ) {}
     }
 }

@@ -1,7 +1,9 @@
 package com.jesusdmedinac.fynd.onboarding.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jesusdmedinac.fynd.onboarding.domain.usecase.HostQrCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -12,7 +14,9 @@ import org.orbitmvi.orbit.syntax.simple.reduce
 import javax.inject.Inject
 
 @HiltViewModel
-class QRScreenViewModel @Inject constructor() :
+class QRScreenViewModel @Inject constructor(
+    private val hostQrCodeUseCase: HostQrCodeUseCase,
+) :
     ViewModel(),
     ContainerHost<QRScreenViewModel.State, QRScreenViewModel.SideEffect> {
     override val container: Container<State, SideEffect> =
@@ -23,10 +27,7 @@ class QRScreenViewModel @Inject constructor() :
             intent {
                 if (state.qrCode.isNotEmpty())
                     return@intent
-                val qrCode = (0..5)
-                    .toList()
-                    .map { ('A'..'Z').random() }
-                    .toString()
+                val qrCode = hostQrCodeUseCase()
                 reduce {
                     state.copy(qrCode = qrCode)
                 }

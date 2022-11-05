@@ -2,13 +2,10 @@ package com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.qrscreen
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import kotlin.math.ceil
 

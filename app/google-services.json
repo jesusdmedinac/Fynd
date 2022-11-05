@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "909986531742",
+    "project_id": "fynd-c8ae2",
+    "storage_bucket": "fynd-c8ae2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:909986531742:android:7e03e9d75066dab7a3ee8f",
+        "android_client_info": {
+          "package_name": "com.jesusdmedinac.fynd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "909986531742-7d7t36i8649ic8ju92uo30n3v3kkno41.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAQmgMCHyHKHnoVeKAT57XmWFVQCZxK-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "909986531742-7d7t36i8649ic8ju92uo30n3v3kkno41.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

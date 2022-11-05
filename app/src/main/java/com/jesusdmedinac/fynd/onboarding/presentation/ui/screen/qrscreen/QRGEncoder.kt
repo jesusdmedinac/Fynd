@@ -1,14 +1,12 @@
 package com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.qrscreen
 
-import com.google.zxing.BarcodeFormat
-import android.os.Bundle
-import android.telephony.PhoneNumberUtils
-import android.provider.ContactsContract
 import android.graphics.Bitmap
+import android.os.Bundle
+import android.provider.ContactsContract
+import android.telephony.PhoneNumberUtils
+import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatWriter
-import java.lang.Exception
-import java.lang.StringBuilder
 import java.util.*
 
 class QRGEncoder(

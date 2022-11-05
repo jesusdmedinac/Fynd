@@ -1,21 +1,15 @@
 package com.jesusdmedinac.fynd.onboarding.presentation.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.qrscreen.QRDrawer
 import com.jesusdmedinac.fynd.onboarding.presentation.viewmodel.QRScreenViewModel
-import kotlin.random.Random
 
 @ExperimentalMaterial3Api
 @Composable
@@ -25,13 +19,15 @@ fun QRScreen(
     qrScreenBehavior: QRScreenViewModel.Behavior
 ) {
     qrScreenBehavior.generateNewCode()
-    Scaffold { paddingValues ->
+    Scaffold(
+        modifier = Modifier.padding(32.dp)
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Button(onClick = qrScreenBehavior::onStartServingClick) {
                 Text(text = "¡Comenzar a servir!")
@@ -42,6 +38,7 @@ fun QRScreen(
                 modifier = Modifier
                     .size(512.dp)
             )
+            Text(text = qrCode, style = MaterialTheme.typography.titleLarge)
             Text(text = "Comparte tu código de líder")
             Button(onClick = qrScreenBehavior::onScanCodeClick) {
                 Text(text = "O escanea el código del líder")

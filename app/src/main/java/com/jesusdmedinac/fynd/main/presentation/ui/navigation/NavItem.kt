@@ -5,5 +5,4 @@ sealed class NavItem(
 ) {
     object MainScreen : NavItem("main-screen")
     object PlacesNavItem : NavItem("places-screen")
-    object ScanCodeNavItem : NavItem("scan-code-screen")
 }
