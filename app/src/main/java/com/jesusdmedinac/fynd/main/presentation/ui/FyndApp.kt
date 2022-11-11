@@ -7,19 +7,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.jesusdmedinac.fynd.main.presentation.mapper.DomainHostToUiHostMapper
+import com.jesusdmedinac.fynd.main.presentation.mapper.DomainSessionToUiSessionMapper
 import com.jesusdmedinac.fynd.main.presentation.ui.navigation.NavItem
 import com.jesusdmedinac.fynd.main.presentation.ui.screen.MainScreen
 import com.jesusdmedinac.fynd.main.presentation.ui.screen.PlacesScreen
 import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.main.presentation.viewmodel.MainScreenViewModel
+import com.jesusdmedinac.fynd.onboarding.domain.model.Session
 import com.jesusdmedinac.fynd.onboarding.domain.usecase.HostQrCodeUseCase
+import com.jesusdmedinac.fynd.onboarding.domain.usecase.RetrieveCurrentSessionUseCase
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.screen.OnboardingScreen
 import com.jesusdmedinac.fynd.onboarding.presentation.viewmodel.QRScreenViewModel
 import com.jesusdmedinac.fynd.places.presentation.viewmodel.PlacesScreenViewModel
+import kotlinx.coroutines.flow.Flow
 import com.jesusdmedinac.fynd.onboarding.presentation.ui.navigation.NavItem as OnboardingNavItem
 
 @ExperimentalMaterial3Api
@@ -29,6 +33,7 @@ fun FyndApp(
     qrScreenViewModel: QRScreenViewModel,
     placesScreenViewModel: PlacesScreenViewModel,
     launchScanner: () -> Unit,
+    launchSignIn: () -> Unit,
 ) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = NavItem.MainScreen.baseRoute) {
@@ -45,7 +50,10 @@ fun FyndApp(
                     MainScreenViewModel.SideEffect.NavigateToOnboardingScreen -> {
                         navController.navigate(OnboardingNavItem.OnboardingMainScreen.baseRoute)
                     }
-                    else -> Unit
+                    MainScreenViewModel.SideEffect.NavigateToSignInScreen -> {
+                        launchSignIn()
+                    }
+                    MainScreenViewModel.SideEffect.Idle -> Unit
                 }
             }
 
@@ -54,7 +62,6 @@ fun FyndApp(
                 mainScreenSideEffect,
                 behavior
             )
-            Text(text = "")
         }
 
         composable(NavItem.PlacesNavItem.baseRoute) {
@@ -92,7 +99,16 @@ fun FyndApp(
 fun FyndAppPreview() {
     FyndTheme {
         FyndApp(
-            mainScreenViewModel = MainScreenViewModel(),
+            mainScreenViewModel = MainScreenViewModel(
+                retrieveCurrentSessionUseCase = object : RetrieveCurrentSessionUseCase {
+                    override suspend fun invoke(): Flow<Session> {
+                        TODO("Not yet implemented")
+                    }
+                },
+                domainSessionToUiSessionMapper = DomainSessionToUiSessionMapper(
+                    domainHostToUiHostMapper = DomainHostToUiHostMapper()
+                )
+            ),
             qrScreenViewModel = QRScreenViewModel(
                 hostQrCodeUseCase = object : HostQrCodeUseCase {
                     override fun invoke(): String {
@@ -100,7 +116,9 @@ fun FyndAppPreview() {
                     }
                 }
             ),
-            placesScreenViewModel = PlacesScreenViewModel()
-        ) {}
+            placesScreenViewModel = PlacesScreenViewModel(),
+            launchScanner = {},
+            launchSignIn = {},
+        )
     }
 }

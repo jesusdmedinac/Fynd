@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Fynd</string>
+    <string name="facebook_application_id" translatable="false">com.jesusdmedinac.fynd</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">com.jesusdmedinac.fynd</string>
 </resources>

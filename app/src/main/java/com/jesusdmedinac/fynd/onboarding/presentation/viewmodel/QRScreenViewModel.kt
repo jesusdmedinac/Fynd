@@ -1,6 +1,5 @@
 package com.jesusdmedinac.fynd.onboarding.presentation.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jesusdmedinac.fynd.onboarding.domain.usecase.HostQrCodeUseCase

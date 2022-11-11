@@ -6,7 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.lifecycle.enableSavedStateHandles
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.jesusdmedinac.fynd.main.presentation.ui.FyndApp
 import com.jesusdmedinac.fynd.main.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.main.presentation.viewmodel.MainActivityViewModel
@@ -37,6 +39,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val signInLauncher = registerForActivityResult(
+        FirebaseAuthUIActivityResultContract()
+    ) { firebaseAuthUIAuthenticationResult ->
+        mainActivityViewModel.behavior.onSignInResult(firebaseAuthUIAuthenticationResult)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -45,13 +53,23 @@ class MainActivity : ComponentActivity() {
                     mainScreenViewModel,
                     qrScreenViewModel,
                     placesScreenViewModel,
-                ) {
-                    val scanOptions = ScanOptions().apply {
-                        setOrientationLocked(false)
-                        setBeepEnabled(false)
+                    launchScanner = {
+                        val scanOptions = ScanOptions().apply {
+                            setOrientationLocked(false)
+                            setBeepEnabled(false)
+                        }
+                        barcodeLauncher.launch(scanOptions)
+                    },
+                    launchSignIn = {
+                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                            .requestIdToken("892734723976-mcbdc35aotmhavflv34apnjqdh1ea67c.apps.googleusercontent.com")
+                            .requestEmail()
+                            .build()
+
+                        val googleSignInClient = GoogleSignIn.getClient(this, gso)
+                        signInLauncher.launch(googleSignInClient.signInIntent)
                     }
-                    barcodeLauncher.launch(scanOptions)
-                }
+                )
             }
         }
     }

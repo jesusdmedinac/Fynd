@@ -1,8 +1,8 @@
 package com.jesusdmedinac.fynd.main.presentation.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.jesusdmedinac.fynd.main.domain.usecase.JoinByLeaderCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.Container
@@ -23,10 +23,15 @@ class MainActivityViewModel @Inject constructor(
         override fun onCodeScanned(code: String) {
             joinByLeaderCodeUseCase(code)
         }
+
+        override fun onSignInResult(firebaseAuthUIAuthenticationResult: FirebaseAuthUIAuthenticationResult) {
+            println("dani ${firebaseAuthUIAuthenticationResult.idpResponse?.error}")
+        }
     }
 
     interface Behavior {
         fun onCodeScanned(code: String)
+        fun onSignInResult(firebaseAuthUIAuthenticationResult: FirebaseAuthUIAuthenticationResult)
     }
 
     class State
