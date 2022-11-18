@@ -1,0 +1,138 @@
+package com.jesusdmedinac.fynd.presentation.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jesusdmedinac.fynd.domain.model.SignInResult
+import com.jesusdmedinac.fynd.domain.model.SignInUserCredentials
+import com.jesusdmedinac.fynd.domain.usecase.SignInUseCase
+import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
+import dagger.hilt.android.lifecycle.HiltViewModel
+import org.orbitmvi.orbit.Container
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.container
+import org.orbitmvi.orbit.syntax.simple.SimpleContext
+import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.reduce
+import javax.inject.Inject
+
+@HiltViewModel
+class AuthSignInViewModel @Inject constructor(
+    private val signInUseCase: SignInUseCase,
+) :
+    ViewModel(),
+    AuthSignInBehavior,
+    ContainerHost<AuthSignInViewModel.State, AuthSignInViewModel.SideEffect> {
+    override val container: Container<State, SideEffect> =
+        viewModelScope.container(State())
+
+    override fun onEmailChange(email: String) {
+        intent {
+            reduce { state.copy(email = email) }
+
+            reduce { state.copy(isEmailError = state.isNotValidEmail()) }
+        }
+    }
+
+    override fun onPasswordChange(password: String) {
+        intent {
+            reduce {
+                state.copy(
+                    password = password,
+                )
+            }
+
+            reduce {
+                state.copy(
+                    isPasswordError = isPasswordError()
+                )
+            }
+        }
+    }
+
+    private fun SimpleContext<State>.isPasswordError(): Boolean =
+        if (state.confirmPassword.isEmpty()) false
+        else state.password != state.confirmPassword
+
+    override fun onPasswordVisibilityToggle() {
+        intent {
+            reduce { state.copy(isPasswordVisible = !state.isPasswordVisible) }
+        }
+    }
+
+    override fun onLoginClick() {
+        intent {
+            if (state.formIsNotValid())
+                return@intent
+
+            reduce { state.copy(isLoading = true) }
+            when (val signInResult = signInUseCase(state.getSignInUserCredentials())) {
+                is SignInResult.Error -> {
+                    reduce {
+                        state.copy(
+                            isLoading = false,
+                            signInErrorMessage = signInResult.throwable.message.toString()
+                        )
+                    }
+                }
+                SignInResult.Success,
+                SignInResult.UserAlreadyLoggedIn -> {
+                    reduce {
+                        state.copy(
+                            isEmailError = false,
+                            isPasswordVisible = false,
+                            isLoading = false,
+                        )
+                    }
+                }
+                SignInResult.UserDoesNotExists -> {
+                    reduce {
+                        state.copy(
+                            isEmailError = true,
+                            isLoading = false,
+                        )
+                    }
+                }
+                SignInResult.WrongPassword -> {
+                    reduce {
+                        state.copy(
+                            isPasswordError = true,
+                            isLoading = false,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun State.isNotValidEmail(): Boolean =
+        email.isEmpty() || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$".toRegex())
+
+    private fun State.formIsNotValid(): Boolean = isEmailError || isPasswordError
+
+    private fun State.getSignInUserCredentials(): SignInUserCredentials =
+        SignInUserCredentials(email, password)
+
+    data class State(
+        val email: String = "",
+        val password: String = "",
+        val confirmPassword: String = "",
+        val signInErrorMessage: String = "",
+        val isEmailError: Boolean = false,
+        val isPasswordError: Boolean = false,
+        val isPasswordVisible: Boolean = false,
+        val isLoading: Boolean = false,
+        val startDestination: String = NavItem.AuthScreen.SignInScreen.baseRoute
+    )
+
+    sealed class SideEffect {
+        object Idle : SideEffect()
+        object NavigateToPlaces : SideEffect()
+    }
+}
+
+interface AuthSignInBehavior {
+    fun onEmailChange(email: String)
+    fun onPasswordChange(password: String)
+    fun onPasswordVisibilityToggle()
+    fun onLoginClick()
+}

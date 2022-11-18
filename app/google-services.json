@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "909986531742-osd3ptlq6tieof0km8ir6rf7ml9kjhuv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jesusdmedinac.fynd",
+            "certificate_hash": "f21594793067a3629302f1fe0acb3f4a5fa49747"
+          }
+        },
+        {
           "client_id": "909986531742-7d7t36i8649ic8ju92uo30n3v3kkno41.apps.googleusercontent.com",
           "client_type": 3
         }
