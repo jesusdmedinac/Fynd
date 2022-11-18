@@ -33,9 +33,7 @@ class MainScreenViewModel @Inject constructor(
     override fun goToOnboardingScreen() {
         intent {
             retrieveCurrentSessionUseCase()
-                .map { domainSession ->
-                    domainSessionToUiSessionMapper.map(domainSession)
-                }
+                .map(domainSessionToUiSessionMapper::map)
                 .distinctUntilChanged()
                 .collectLatest { uiSession ->
                     onSessionStateChange(uiSession)

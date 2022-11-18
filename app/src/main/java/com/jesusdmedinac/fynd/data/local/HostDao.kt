@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.jesusdmedinac.fynd.data.local.model.HostUser
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HostDao {
@@ -16,4 +17,7 @@ interface HostDao {
 
     @Query("SELECT count(*) FROM hosts WHERE email = :email")
     fun isLoggedIn(email: String): Boolean
+
+    @Query("SELECT * FROM hosts WHERE isLoggedIn = 1")
+    fun isLoggedIn(): Flow<HostUser>
 }

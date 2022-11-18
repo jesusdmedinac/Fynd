@@ -22,10 +22,8 @@ class HostRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher,
     private val hostDao: HostDao,
 ) : HostRepository {
-    override suspend fun getCurrentSession(): Flow<Session> =
-        hostRemoteDataSource.getCurrentSession()
-            .flowOn(ioDispatcher)
-            .map { it.toSession() }
+    override suspend fun getCurrentSession(): Flow<Session> = hostDao.isLoggedIn()
+        .map { it.toSession() }
 
     override suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult =
         withContext(ioDispatcher) {
@@ -72,9 +70,10 @@ class HostRepositoryImpl @Inject constructor(
         email,
         photoUrl,
         displayName,
+        isLoggedIn = true
     )
 
-    private fun RemoteHostUser?.toSession(): Session = this
+    private fun LocalHostUser?.toSession(): Session = this
         ?.let { Session.LoggedHost(Host(it.email, isLeader = false)) }
         ?: run { Session.HostIsNotLoggedIn }
 }

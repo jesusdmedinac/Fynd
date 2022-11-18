@@ -6,7 +6,7 @@ import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import javax.inject.Inject
 
 interface SignInUseCase {
-    suspend operator fun invoke(userCredentials: SignInUserCredentials): SignInResult
+    suspend operator fun invoke(signInUserCredentials: SignInUserCredentials): SignInResult
 }
 
 class SignInUseCaseImpl @Inject constructor(

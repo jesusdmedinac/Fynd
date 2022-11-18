@@ -105,7 +105,7 @@ class AuthSignUpViewModel @Inject constructor(
                         )
                     }
 
-                    postSideEffect(SideEffect.NavigateToPlaces)
+                    postSideEffect(SideEffect.NavigateToOnboarding)
                 }
                 SignUpResult.UserAlreadyExists -> {
                     reduce {
@@ -145,7 +145,7 @@ class AuthSignUpViewModel @Inject constructor(
 
     sealed class SideEffect {
         object Idle : SideEffect()
-        object NavigateToPlaces : SideEffect()
+        object NavigateToOnboarding : SideEffect()
     }
 }
 

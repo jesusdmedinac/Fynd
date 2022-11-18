@@ -12,6 +12,7 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
 import org.orbitmvi.orbit.syntax.simple.SimpleContext
 import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import javax.inject.Inject
 
@@ -83,6 +84,8 @@ class AuthSignInViewModel @Inject constructor(
                             isLoading = false,
                         )
                     }
+
+                    postSideEffect(SideEffect.NavigateToOnboarding)
                 }
                 SignInResult.UserDoesNotExists -> {
                     reduce {
@@ -126,7 +129,7 @@ class AuthSignInViewModel @Inject constructor(
 
     sealed class SideEffect {
         object Idle : SideEffect()
-        object NavigateToPlaces : SideEffect()
+        object NavigateToOnboarding : SideEffect()
     }
 }
 

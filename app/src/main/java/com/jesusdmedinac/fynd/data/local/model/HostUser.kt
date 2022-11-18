@@ -11,4 +11,5 @@ data class HostUser(
     val email: String,
     val photoUrl: String,
     val displayName: String,
+    val isLoggedIn: Boolean,
 )

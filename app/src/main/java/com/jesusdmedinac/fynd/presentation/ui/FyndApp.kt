@@ -96,6 +96,9 @@ fun FyndApp(
                 onWantToSignInClick = {
                     authStartDestination = NavItem.AuthScreen.SignInScreen.baseRoute
                 },
+                onUserLoggedIn = {
+                    navController.navigate(NavItem.OnboardingMainScreen.Host.baseRoute)
+                },
             )
         }
     }

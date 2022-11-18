@@ -23,7 +23,7 @@ import com.jesusdmedinac.fynd.presentation.viewmodel.AuthSignUpViewModel
 fun AuthSignUpScreen(
     authSignUpState: AuthSignUpViewModel.State,
     authSignUpBehavior: AuthSignUpBehavior,
-    onWantToSignInClick: () -> Unit
+    onWantToSignInClick: () -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.padding(32.dp),

@@ -20,24 +20,16 @@ import kotlin.coroutines.resume
 
 
 interface HostRemoteDataSource {
-    fun getCurrentSession(): Flow<HostUser?>
     suspend fun signIn(signInHostUserCredentials: SignInHostUserCredentials): HostUser
     suspend fun signUp(signUpHostUserCredentials: SignUpHostUserCredentials): HostUser
 }
 
 class HostRemoteDataSourceImpl @Inject constructor(
-    private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val firebaseUserToHostUserMapper: FirebaseUserToHostUserMapper,
     @Named("sha256")
     private val hashFunction: HashFunction,
 ) : HostRemoteDataSource {
-    override fun getCurrentSession(): Flow<HostUser?> = channelFlow {
-        auth.addAuthStateListener {
-            trySendHostUser(auth)
-        }
-        trySendHostUser(auth)
-    }
 
     override suspend fun signIn(signInHostUserCredentials: SignInHostUserCredentials): HostUser =
         suspendCancellableCoroutine { continuation ->

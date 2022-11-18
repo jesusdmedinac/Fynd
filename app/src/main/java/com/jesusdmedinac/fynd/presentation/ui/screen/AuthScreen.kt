@@ -2,6 +2,7 @@ package com.jesusdmedinac.fynd.presentation.ui.screen
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,8 +28,35 @@ fun AuthScreen(
     startDestination: String,
     onWantToSignUpClick: () -> Unit,
     onWantToSignInClick: () -> Unit,
+    onUserLoggedIn: () -> Unit,
 ) {
     val navController = rememberNavController()
+
+    val authSignInSideEffect by authSignInViewModel
+        .container
+        .sideEffectFlow
+        .collectAsState(initial = AuthSignInViewModel.SideEffect.Idle)
+    val authSignUpSideEffect by authSignUpViewModel
+        .container
+        .sideEffectFlow
+        .collectAsState(initial = AuthSignUpViewModel.SideEffect.Idle)
+
+    LaunchedEffect(authSignInSideEffect) {
+        when (authSignInSideEffect) {
+            AuthSignInViewModel.SideEffect.NavigateToOnboarding -> {
+                onUserLoggedIn()
+            }
+            else -> Unit
+        }
+    }
+    LaunchedEffect(authSignUpSideEffect) {
+        when (authSignUpSideEffect) {
+            AuthSignUpViewModel.SideEffect.NavigateToOnboarding -> {
+                onUserLoggedIn()
+            }
+            else -> Unit
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -40,7 +68,7 @@ fun AuthScreen(
             AuthSignInScreen(
                 authSignInState,
                 authSignInViewModel,
-                onWantToSignUpClick
+                onWantToSignUpClick,
             )
         }
 
@@ -50,7 +78,7 @@ fun AuthScreen(
             AuthSignUpScreen(
                 authSignUpState,
                 authSignUpViewModel,
-                onWantToSignInClick
+                onWantToSignInClick,
             )
         }
     }
@@ -64,14 +92,14 @@ fun AuthScreenPreview() {
         AuthScreen(
             authSignInViewModel = AuthSignInViewModel(
                 signInUseCase = object : SignInUseCase {
-                    override suspend fun invoke(userCredentials: SignInUserCredentials): SignInResult {
+                    override suspend fun invoke(signInUserCredentials: SignInUserCredentials): SignInResult {
                         TODO("Not yet implemented")
                     }
                 }
             ),
             authSignUpViewModel = AuthSignUpViewModel(
                 signUpUseCase = object : SignUpUseCase {
-                    override suspend fun invoke(userCredentials: SignUpUserCredentials): SignUpResult {
+                    override suspend fun invoke(signUpUserCredentials: SignUpUserCredentials): SignUpResult {
                         TODO("Not yet implemented")
                     }
                 }
@@ -79,6 +107,7 @@ fun AuthScreenPreview() {
             startDestination = "",
             onWantToSignInClick = {},
             onWantToSignUpClick = {},
+            onUserLoggedIn = {},
         )
     }
 }
