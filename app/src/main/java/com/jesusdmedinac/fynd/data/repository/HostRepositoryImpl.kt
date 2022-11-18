@@ -74,6 +74,14 @@ class HostRepositoryImpl @Inject constructor(
     )
 
     private fun LocalHostUser?.toSession(): Session = this
-        ?.let { Session.LoggedHost(Host(it.email, isLeader = false)) }
+        ?.let {
+            Session.LoggedHost(
+                Host(
+                    it.email,
+                    it.displayName,
+                    isLeader = false,
+                )
+            )
+        }
         ?: run { Session.HostIsNotLoggedIn }
 }

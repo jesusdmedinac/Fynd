@@ -64,10 +64,8 @@ class MainScreenViewModel @Inject constructor(
     }
 
     override fun goToSignUpScreen() {
-        Log.d("dani", "-1 goToSignUpScreen")
         intent {
             delay(100)
-            Log.d("dani", "0 SideEffect.NavigateToSignUpScreen")
             postSideEffect(SideEffect.NavigateToSignUpScreen)
         }
     }
@@ -83,7 +81,8 @@ class MainScreenViewModel @Inject constructor(
         }
 
         data class Host(
-            val username: String,
+            val email: String,
+            val displayName: String,
             val isLeader: Boolean,
         )
     }

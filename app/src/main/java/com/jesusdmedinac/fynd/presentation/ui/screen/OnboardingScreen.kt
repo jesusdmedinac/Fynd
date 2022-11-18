@@ -6,17 +6,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.domain.model.Session
 import com.jesusdmedinac.fynd.domain.usecase.HostQrCodeUseCase
+import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
+import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToUiHostMapper
+import com.jesusdmedinac.fynd.presentation.mapper.DomainSessionToUiSessionMapper
+import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
+import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenViewModel
+import kotlinx.coroutines.flow.Flow
 
 @ExperimentalMaterial3Api
 @Composable
 fun OnboardingScreen(
+    mainScreenViewModel: MainScreenViewModel,
     qrScreenViewModel: QRScreenViewModel,
     onNavigateToPlacesScreenClick: () -> Unit,
     onNavigateToScanCodeScreenClick: () -> Unit,
@@ -27,7 +35,11 @@ fun OnboardingScreen(
         startDestination = NavItem.OnboardingMainScreen.Main.baseRoute
     ) {
         composable(NavItem.OnboardingMainScreen.Main.baseRoute) {
-            OnboardingMainScreen {
+            val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
+
+            OnboardingMainScreen(
+                mainScreenState.session
+            ) {
                 navController.navigate(NavItem.OnboardingMainScreen.QRScreen.baseRoute)
             }
         }
@@ -62,6 +74,16 @@ fun OnboardingScreen(
 fun OnboardingScreenPreview() {
     FyndTheme {
         OnboardingScreen(
+            mainScreenViewModel = MainScreenViewModel(
+                retrieveCurrentSessionUseCase = object : RetrieveCurrentSessionUseCase {
+                    override suspend fun invoke(): Flow<Session> {
+                        TODO("Not yet implemented")
+                    }
+                },
+                domainSessionToUiSessionMapper = DomainSessionToUiSessionMapper(
+                    DomainHostToUiHostMapper()
+                ),
+            ),
             qrScreenViewModel = QRScreenViewModel(
                 hostQrCodeUseCase = object : HostQrCodeUseCase {
                     override fun invoke(): String {

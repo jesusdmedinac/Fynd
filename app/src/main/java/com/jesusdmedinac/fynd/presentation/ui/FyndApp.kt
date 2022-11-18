@@ -75,7 +75,8 @@ fun FyndApp(
 
         composable(NavItem.OnboardingMainScreen.Host.baseRoute) {
             OnboardingScreen(
-                qrScreenViewModel = qrScreenViewModel,
+                mainScreenViewModel,
+                qrScreenViewModel,
                 onNavigateToPlacesScreenClick = {
                     navController.navigate(NavItem.PlacesNavItem.baseRoute)
                 },

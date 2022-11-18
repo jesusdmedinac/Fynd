@@ -8,6 +8,7 @@ class DomainHostToUiHostMapper @Inject constructor() {
     fun map(input: Host): MainScreenViewModel.State.Host = with(input) {
         MainScreenViewModel.State.Host(
             email,
+            displayName,
             isLeader,
         )
     }
