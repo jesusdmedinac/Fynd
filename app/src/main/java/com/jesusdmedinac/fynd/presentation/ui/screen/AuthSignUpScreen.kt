@@ -61,7 +61,7 @@ fun AuthSignUpScreen(
             )
             if (authSignUpState.isEmailError) {
                 Text(
-                    "Aún no eres anfitrión o tu correo no es correcto",
+                    "Aún no eres anfitrión o tu correo o contraseña no es correcto",
                     color = MaterialTheme.colorScheme.error,
                 )
             }

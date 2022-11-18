@@ -10,10 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
-import org.orbitmvi.orbit.syntax.simple.SimpleContext
-import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.postSideEffect
-import org.orbitmvi.orbit.syntax.simple.reduce
+import org.orbitmvi.orbit.syntax.simple.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,7 +27,7 @@ class AuthSignInViewModel @Inject constructor(
         intent {
             reduce { state.copy(email = email) }
 
-            reduce { state.copy(isEmailError = state.isNotValidEmail()) }
+            validateForm()
         }
     }
 
@@ -42,17 +39,13 @@ class AuthSignInViewModel @Inject constructor(
                 )
             }
 
-            reduce {
-                state.copy(
-                    isPasswordError = isPasswordError()
-                )
-            }
+            validateForm()
         }
     }
 
-    private fun SimpleContext<State>.isPasswordError(): Boolean =
-        if (state.confirmPassword.isEmpty()) false
-        else state.password != state.confirmPassword
+    private fun State.isPasswordError(): Boolean =
+        if (confirmPassword.isEmpty()) false
+        else password != confirmPassword
 
     override fun onPasswordVisibilityToggle() {
         intent {
@@ -62,6 +55,7 @@ class AuthSignInViewModel @Inject constructor(
 
     override fun onLoginClick() {
         intent {
+            validateForm()
             if (state.formIsNotValid())
                 return@intent
 
@@ -104,6 +98,16 @@ class AuthSignInViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun SimpleSyntax<State, SideEffect>.validateForm() {
+        reduce {
+            state.copy(
+                isEmailError = state.isNotValidEmail(),
+                signInErrorMessage = "",
+                isPasswordError = state.isPasswordError()
+            )
         }
     }
 

@@ -10,10 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
-import org.orbitmvi.orbit.syntax.simple.SimpleContext
-import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.postSideEffect
-import org.orbitmvi.orbit.syntax.simple.reduce
+import org.orbitmvi.orbit.syntax.simple.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,7 +27,7 @@ class AuthSignUpViewModel @Inject constructor(
         intent {
             reduce { state.copy(email = email) }
 
-            reduce { state.copy(isEmailError = state.isNotValidEmail()) }
+            validateForm()
         }
     }
 
@@ -50,11 +47,7 @@ class AuthSignUpViewModel @Inject constructor(
                 )
             }
 
-            reduce {
-                state.copy(
-                    isPasswordError = isPasswordError()
-                )
-            }
+            validateForm()
         }
     }
 
@@ -65,17 +58,9 @@ class AuthSignUpViewModel @Inject constructor(
                     confirmPassword = confirmPassword,
                 )
             }
-            reduce {
-                state.copy(
-                    isPasswordError = isPasswordError()
-                )
-            }
+            validateForm()
         }
     }
-
-    private fun SimpleContext<State>.isPasswordError(): Boolean =
-        if (state.confirmPassword.isEmpty()) false
-        else state.password != state.confirmPassword
 
     override fun onPasswordVisibilityToggle() {
         intent {
@@ -85,6 +70,7 @@ class AuthSignUpViewModel @Inject constructor(
 
     override fun onSignUpClick() {
         intent {
+            validateForm()
             if (state.isNotValidForm())
                 return@intent
 
@@ -120,11 +106,24 @@ class AuthSignUpViewModel @Inject constructor(
         }
     }
 
+    private suspend fun SimpleSyntax<State, SideEffect>.validateForm() {
+        reduce {
+            state.copy(
+                isEmailError = state.isNotValidEmail(),
+                isPasswordError = state.isPasswordError()
+            )
+        }
+    }
+
     private fun State.isNotValidEmail(): Boolean =
         email.isEmpty() || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$".toRegex())
 
     private fun State.isNotValidForm(): Boolean =
         isEmailError || isDisplayNameError || isPasswordError
+
+    private fun State.isPasswordError(): Boolean =
+        if (confirmPassword.isEmpty()) false
+        else password != confirmPassword
 
     private fun State.getSignUpUserCredentials(): SignUpUserCredentials =
         SignUpUserCredentials(email, displayName, password)

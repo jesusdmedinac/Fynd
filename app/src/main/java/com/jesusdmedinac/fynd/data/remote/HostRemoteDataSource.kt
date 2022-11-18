@@ -1,7 +1,5 @@
 package com.jesusdmedinac.fynd.data.remote
 
-import android.R.id
-import com.google.common.hash.HashCode
 import com.google.common.hash.HashFunction
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -11,8 +9,6 @@ import com.jesusdmedinac.fynd.data.remote.model.SignInHostUserCredentials
 import com.jesusdmedinac.fynd.data.remote.model.SignUpHostUserCredentials
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import javax.inject.Named
@@ -39,17 +35,27 @@ class HostRemoteDataSourceImpl @Inject constructor(
                 .get()
                 .addOnSuccessListener { documentSnapshot ->
                     if (!documentSnapshot.exists()) {
-                        continuation.cancel(Exception("Host not found"))
+                        continuation.cancel(Throwable("Host with email $emailFromCredential not found"))
                     } else {
-                        val data = documentSnapshot.data
-                        val displayName: String = data?.get("displayName") as? String ?: ""
-                        val email: String = data?.get("email") as? String ?: ""
-                        val hostUser = HostUser(
-                            photoUrl = "",
-                            displayName = displayName,
-                            email = email,
-                        )
-                        continuation.resume(hostUser)
+                        documentSnapshot.data?.let { data ->
+                            val password = data["password"] as? String ?: ""
+                            val passwordFromCredential = signInHostUserCredentials.password
+                            val hashedPassword = passwordFromCredential.toHashedString()
+                            if (password != hashedPassword) {
+                                continuation.cancel(Throwable("Invalid password for email $emailFromCredential"))
+                            } else {
+                                val displayName: String = data["displayName"] as? String ?: ""
+                                val email: String = data["email"] as? String ?: ""
+                                val hostUser = HostUser(
+                                    photoUrl = "",
+                                    displayName = displayName,
+                                    email = email,
+                                )
+                                continuation.resume(hostUser)
+                            }
+                        } ?: run {
+                            continuation.cancel(Throwable("No Data for Host with email $emailFromCredential"))
+                        }
                     }
                 }
                 .addOnFailureListener {
@@ -67,12 +73,7 @@ class HostRemoteDataSourceImpl @Inject constructor(
                         "photoUrl" to "",
                         "displayName" to signUpHostUserCredentials.displayName,
                         "email" to signUpHostUserCredentials.email,
-                        "password" to hashFunction.run {
-                            newHasher()
-                                .putString(signUpHostUserCredentials.password, Charsets.UTF_8)
-                                .hash()
-                                .toString()
-                        }
+                        "password" to signUpHostUserCredentials.password.toHashedString()
                     )
                 )
                 .addOnSuccessListener {
@@ -82,6 +83,13 @@ class HostRemoteDataSourceImpl @Inject constructor(
                     continuation.cancel(it)
                 }
         }
+
+    private fun String.toHashedString(): String = with(hashFunction) {
+        newHasher()
+            .putString(this@toHashedString, Charsets.UTF_8)
+            .hash()
+            .toString()
+    }
 
     private fun SignUpHostUserCredentials.toHostUser() = HostUser(
         "",
