@@ -2,7 +2,6 @@ package com.jesusdmedinac.fynd.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.jesusdmedinac.fynd.domain.usecase.JoinByLeaderCodeUseCase
 import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +24,7 @@ class MainActivityViewModel @Inject constructor(
 
     override fun retrieveCurrentSession() {
         intent {
-            retrieveCurrentSessionUseCase()
+            retrieveCurrentSessionUseCase(viewModelScope)
         }
     }
 

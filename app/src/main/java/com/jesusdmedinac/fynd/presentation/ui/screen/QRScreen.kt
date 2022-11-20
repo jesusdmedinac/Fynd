@@ -11,7 +11,6 @@ import com.jesusdmedinac.fynd.presentation.ui.screen.qrscreen.QRDrawer
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenBehavior
-import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable

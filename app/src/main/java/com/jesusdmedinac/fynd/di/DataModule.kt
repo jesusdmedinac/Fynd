@@ -1,9 +1,9 @@
 package com.jesusdmedinac.fynd.di
 
-import com.jesusdmedinac.fynd.data.remote.LeaderRemoteDataSource
-import com.jesusdmedinac.fynd.data.remote.LeaderRemoteDataSourceImpl
 import com.jesusdmedinac.fynd.data.remote.HostRemoteDataSource
 import com.jesusdmedinac.fynd.data.remote.HostRemoteDataSourceImpl
+import com.jesusdmedinac.fynd.data.remote.LeaderRemoteDataSource
+import com.jesusdmedinac.fynd.data.remote.LeaderRemoteDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

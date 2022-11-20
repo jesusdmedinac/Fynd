@@ -10,8 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jesusdmedinac.fynd.domain.model.SignInResult
-import com.jesusdmedinac.fynd.domain.model.SignUpResult
 import com.jesusdmedinac.fynd.domain.model.SignInUserCredentials
+import com.jesusdmedinac.fynd.domain.model.SignUpResult
 import com.jesusdmedinac.fynd.domain.model.SignUpUserCredentials
 import com.jesusdmedinac.fynd.domain.usecase.SignInUseCase
 import com.jesusdmedinac.fynd.domain.usecase.SignUpUseCase

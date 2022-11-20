@@ -1,9 +1,8 @@
 package com.jesusdmedinac.fynd.data.repository
 
 import com.jesusdmedinac.fynd.data.local.HostDao
-import com.jesusdmedinac.fynd.data.remote.model.HostUser as RemoteHostUser
-import com.jesusdmedinac.fynd.data.remote.model.SignInHostUserCredentials
 import com.jesusdmedinac.fynd.data.remote.HostRemoteDataSource
+import com.jesusdmedinac.fynd.data.remote.model.SignInHostUserCredentials
 import com.jesusdmedinac.fynd.data.remote.model.SignUpHostUserCredentials
 import com.jesusdmedinac.fynd.data.repository.mapper.RemoteHostUserToLocalHostUserMapper
 import com.jesusdmedinac.fynd.domain.model.*
@@ -14,6 +13,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 import com.jesusdmedinac.fynd.data.local.model.HostUser as LocalHostUser
+import com.jesusdmedinac.fynd.data.remote.model.HostUser as RemoteHostUser
 
 class HostRepositoryImpl @Inject constructor(
     private val hostRemoteDataSource: HostRemoteDataSource,
@@ -22,28 +22,25 @@ class HostRepositoryImpl @Inject constructor(
     private val hostDao: HostDao,
     private val remoteHostUserToLocalHostUserMapper: RemoteHostUserToLocalHostUserMapper
 ) : HostRepository {
+    override suspend fun retrieveCurrentSession(email: String) {
+        hostRemoteDataSource
+            .getHostUserBy(email)
+            .flowOn(ioDispatcher)
+            .collect { remoteHostUser ->
+                val localHostUser = remoteHostUserToLocalHostUserMapper.map(remoteHostUser)
+                withContext(ioDispatcher) { hostDao.insertHostUser(localHostUser) }
+            }
+    }
+
     override suspend fun getCurrentSession(): Flow<Session> = hostDao.loggedHostUserFlow()
         .flowOn(ioDispatcher)
         .map { it.toSession() }
-        .distinctUntilChanged()
-        .onEach {
-            val email = when (it) {
-                is Session.LoggedHost -> it.host.email
-                else -> return@onEach
-            }
-            hostRemoteDataSource
-                .getHostUserBy(email)
-                .flowOn(ioDispatcher)
-                .collect { remoteHostUser ->
-                    val localHostUser = remoteHostUserToLocalHostUserMapper.map(remoteHostUser)
-                    hostDao.insertHostUser(localHostUser)
-                }
-        }
 
-    override suspend fun getCurrentHost(): Host = (hostDao
-        .loggedHostUser()
-        .toSession() as Session.LoggedHost)
-        .host
+    override suspend fun getCurrentHost(): Host? = withContext(ioDispatcher) {
+        (hostDao.loggedHostUser()
+            ?.toSession() as? Session.LoggedHost)
+            ?.host
+    }
 
     override suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult =
         withContext(ioDispatcher) {
@@ -52,7 +49,7 @@ class HostRepositoryImpl @Inject constructor(
                 runCatching { hostRemoteDataSource.signIn(signInHostUserCredentials) }
                     .onFailure { return@withContext SignInResult.UserDoesNotExists }
                     .onSuccess { remoteHostUser ->
-                        val localHostUser = remoteHostUser.toLocalHostUser()
+                        val localHostUser = remoteHostUser.toLocalHostUser().copy(isLoggedIn = true)
                         hostDao.insertHostUser(localHostUser)
                         return@withContext SignInResult.Success
                     }
@@ -108,6 +105,5 @@ class HostRepositoryImpl @Inject constructor(
                 isLeader,
             )
         )
-    }
-        ?: run { Session.HostIsNotLoggedIn }
+    } ?: run { Session.HostIsNotLoggedIn }
 }

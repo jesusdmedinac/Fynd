@@ -1,9 +1,9 @@
 package com.jesusdmedinac.fynd.di
 
-import com.jesusdmedinac.fynd.data.repository.LeaderRepositoryImpl
-import com.jesusdmedinac.fynd.domain.repository.LeaderRepository
 import com.jesusdmedinac.fynd.data.repository.HostRepositoryImpl
+import com.jesusdmedinac.fynd.data.repository.LeaderRepositoryImpl
 import com.jesusdmedinac.fynd.domain.repository.HostRepository
+import com.jesusdmedinac.fynd.domain.repository.LeaderRepository
 import com.jesusdmedinac.fynd.domain.usecase.*
 import dagger.Binds
 import dagger.Module
@@ -32,6 +32,11 @@ interface MainActivityModule {
     fun bindsRetrieveCurrentSessionUseCase(
         retrieveCurrentSessionUseCaseImpl: RetrieveCurrentSessionUseCaseImpl
     ): RetrieveCurrentSessionUseCase
+
+    @Binds
+    fun bindsGetCurrentHostUseCase(
+        getCurrentHostUseCaseImpl: GetCurrentHostUseCaseImpl
+    ): GetCurrentHostUseCase
 
     @Binds
     fun bindsSignInUseCase(

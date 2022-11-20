@@ -1,7 +1,6 @@
 package com.jesusdmedinac.fynd.domain.usecase
 
 import com.jesusdmedinac.fynd.domain.model.SignUpResult
-import com.jesusdmedinac.fynd.domain.model.SignInUserCredentials
 import com.jesusdmedinac.fynd.domain.model.SignUpUserCredentials
 import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import javax.inject.Inject

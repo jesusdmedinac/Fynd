@@ -8,7 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.jesusdmedinac.fynd.presentation.ui.FyndApp
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
-import com.jesusdmedinac.fynd.presentation.viewmodel.*
+import com.jesusdmedinac.fynd.presentation.viewmodel.MainActivityViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
@@ -40,13 +41,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        mainActivityViewModel.retrieveCurrentSession()
-
         setContent {
             FyndTheme {
                 FyndApp(
                     launchScanner = ::launchScanner,
+                    mainActivityViewModel,
                 )
             }
         }

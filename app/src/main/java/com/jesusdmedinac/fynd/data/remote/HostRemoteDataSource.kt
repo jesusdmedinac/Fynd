@@ -1,9 +1,6 @@
 package com.jesusdmedinac.fynd.data.remote
 
-import com.google.common.hash.HashFunction
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.jesusdmedinac.fynd.data.remote.mapper.MapToHostUserMapper
 import com.jesusdmedinac.fynd.data.remote.mapper.PasswordStringHasher
 import com.jesusdmedinac.fynd.data.remote.mapper.SignUpHostUserCredentialsToMapMapper
@@ -14,8 +11,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.coroutines.resume
@@ -29,8 +24,6 @@ interface HostRemoteDataSource {
 
 class HostRemoteDataSourceImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
-    @Named("io-dispatcher")
-    private val ioDispatcher: CoroutineDispatcher,
     private val signUpHostUserCredentialsToMapMapper: SignUpHostUserCredentialsToMapMapper,
     private val passwordStringHasher: PasswordStringHasher,
     private val mapToHostUserMapper: MapToHostUserMapper,
@@ -68,7 +61,7 @@ class HostRemoteDataSourceImpl @Inject constructor(
                             if (password != hashedPassword) {
                                 continuation.cancel(Throwable("Invalid password for email $emailFromCredential"))
                             } else {
-                                val hostUser = mapToHostUserMapper.map(data)
+                                val hostUser = mapToHostUserMapper.map(data).copy(isLoggedIn = true)
                                 continuation.resume(hostUser)
                             }
                         } ?: run {

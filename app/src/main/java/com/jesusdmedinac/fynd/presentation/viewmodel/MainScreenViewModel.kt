@@ -3,13 +3,10 @@ package com.jesusdmedinac.fynd.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jesusdmedinac.fynd.presentation.mapper.DomainSessionToUiSessionMapper
-import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
+import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
+import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToStateHostMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
@@ -21,8 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val retrieveCurrentSessionUseCase: RetrieveCurrentSessionUseCase,
-    private val domainSessionToUiSessionMapper: DomainSessionToUiSessionMapper,
+    private val getCurrentHostUseCase: GetCurrentHostUseCase,
+    private val domainHostToStateHostMapper: DomainHostToStateHostMapper,
 ) :
     ViewModel(),
     MainScreenBehavior,
@@ -30,13 +27,13 @@ class MainScreenViewModel @Inject constructor(
     override val container: Container<State, SideEffect> =
         viewModelScope.container(State())
 
-    override fun goToOnboardingScreen() {
+    override fun getCurrentSession() {
         intent {
-            retrieveCurrentSessionUseCase()
-                .map(domainSessionToUiSessionMapper::map)
-                .distinctUntilChanged()
-                .collect { uiSession ->
-                    onSessionStateChange(uiSession)
+            runCatching { getCurrentHostUseCase() }
+                .onFailure { Log.e("dani", it.message.toString()) }
+                .onSuccess { host ->
+                    val stateHost = domainHostToStateHostMapper.map(host)
+                    onSessionStateChange(State.Session.HostIsLoggedIn(stateHost))
                 }
         }
     }
@@ -53,7 +50,6 @@ class MainScreenViewModel @Inject constructor(
                     state.copy(session = State.Session.HostIsLoggedIn(uiSession.host))
                 }
             }
-            else -> Unit
         }
     }
 
@@ -72,10 +68,9 @@ class MainScreenViewModel @Inject constructor(
     }
 
     data class State(
-        val session: Session = Session.Idle,
+        val session: Session = Session.HostIsNotLoggedIn,
     ) {
         sealed class Session {
-            object Idle : Session()
             object HostIsNotLoggedIn : Session()
             data class HostIsLoggedIn(
                 val host: Host,
@@ -99,7 +94,7 @@ class MainScreenViewModel @Inject constructor(
 }
 
 interface MainScreenBehavior {
-    fun goToOnboardingScreen()
+    fun getCurrentSession()
     fun goToSignInScreen()
     fun goToSignUpScreen()
 }

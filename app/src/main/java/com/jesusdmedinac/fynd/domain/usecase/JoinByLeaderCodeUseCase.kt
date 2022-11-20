@@ -13,10 +13,8 @@ class JoinByLeaderCodeUseCaseImpl @Inject constructor(
     private val hostRepository: HostRepository,
 ) : JoinByLeaderCodeUseCase {
     override suspend fun invoke(leaderCode: String) {
-        val currentHost = hostRepository
-            .getCurrentHost()
-        val hostCode = currentHost
-            .qrCode
+        val currentHost = hostRepository.getCurrentHost() ?: throw Throwable("Current host is not available")
+        val hostCode = currentHost.qrCode
         leaderRepository.joinBy(
             leaderCode,
             hostCode,

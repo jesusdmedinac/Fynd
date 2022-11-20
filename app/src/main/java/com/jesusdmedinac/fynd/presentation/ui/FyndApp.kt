@@ -7,6 +7,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.jesusdmedinac.fynd.domain.model.Host
+import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
+import com.jesusdmedinac.fynd.domain.usecase.JoinByLeaderCodeUseCase
+import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
+import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToStateHostMapper
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
 import com.jesusdmedinac.fynd.presentation.ui.screen.AuthScreen
 import com.jesusdmedinac.fynd.presentation.ui.screen.MainScreen
@@ -14,11 +19,13 @@ import com.jesusdmedinac.fynd.presentation.ui.screen.OnboardingScreen
 import com.jesusdmedinac.fynd.presentation.ui.screen.PlacesScreen
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.*
+import kotlinx.coroutines.CoroutineScope
 
 @ExperimentalMaterial3Api
 @Composable
 fun FyndApp(
     launchScanner: () -> Unit,
+    mainActivityViewModel: MainActivityViewModel,
 ) {
     val mainScreenViewModel: MainScreenViewModel = hiltViewModel()
     val placesScreenViewModel: PlacesScreenViewModel = hiltViewModel()
@@ -74,7 +81,9 @@ fun FyndApp(
         }
 
         composable(NavItem.OnboardingMainScreen.Host.baseRoute) {
+            val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
             OnboardingScreen(
+                mainScreenState,
                 mainScreenViewModel,
                 qrScreenViewModel,
                 onNavigateToPlacesScreenClick = {
@@ -98,6 +107,7 @@ fun FyndApp(
                     authStartDestination = NavItem.AuthScreen.SignInScreen.baseRoute
                 },
                 onUserLoggedIn = {
+                    mainActivityViewModel.retrieveCurrentSession()
                     navController.navigate(NavItem.OnboardingMainScreen.Host.baseRoute)
                 },
             )
@@ -111,7 +121,19 @@ fun FyndApp(
 fun FyndAppPreview() {
     FyndTheme {
         FyndApp(
-            launchScanner = {}
+            launchScanner = {},
+            mainActivityViewModel = MainActivityViewModel(
+                joinByLeaderCodeUseCase = object : JoinByLeaderCodeUseCase {
+                    override suspend fun invoke(leaderCode: String) {
+                        TODO("Not yet implemented")
+                    }
+                },
+                retrieveCurrentSessionUseCase = object : RetrieveCurrentSessionUseCase {
+                    override suspend fun invoke(viewModelScope: CoroutineScope) {
+                        TODO("Not yet implemented")
+                    }
+                }
+            ),
         )
     }
 }

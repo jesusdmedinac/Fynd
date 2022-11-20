@@ -9,32 +9,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jesusdmedinac.fynd.domain.model.Session
-import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
-import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToUiHostMapper
-import com.jesusdmedinac.fynd.presentation.mapper.DomainSessionToUiSessionMapper
-import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
+import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenViewModel
-import kotlinx.coroutines.flow.Flow
 
 @ExperimentalMaterial3Api
 @Composable
 fun OnboardingScreen(
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenState: MainScreenViewModel.State = MainScreenViewModel.State(),
+    mainScreenBehavior: MainScreenBehavior,
     qrScreenViewModel: QRScreenViewModel,
     onNavigateToPlacesScreenClick: () -> Unit,
     onNavigateToScanCodeScreenClick: () -> Unit,
 ) {
     val navController = rememberNavController()
+
+    LaunchedEffect(Unit) {
+        mainScreenBehavior.getCurrentSession()
+    }
+
     NavHost(
         navController = navController,
         startDestination = NavItem.OnboardingMainScreen.Main.baseRoute
     ) {
         composable(NavItem.OnboardingMainScreen.Main.baseRoute) {
-            val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
-
             OnboardingMainScreen(
                 mainScreenState.session
             ) {
@@ -43,7 +43,6 @@ fun OnboardingScreen(
         }
 
         composable(NavItem.OnboardingMainScreen.QRScreen.baseRoute) {
-            val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
             val qrScreenSideEffect by qrScreenViewModel
                 .container
                 .sideEffectFlow
@@ -71,16 +70,20 @@ fun OnboardingScreen(
 fun OnboardingScreenPreview() {
     FyndTheme {
         OnboardingScreen(
-            mainScreenViewModel = MainScreenViewModel(
-                retrieveCurrentSessionUseCase = object : RetrieveCurrentSessionUseCase {
-                    override suspend fun invoke(): Flow<Session> {
-                        TODO("Not yet implemented")
-                    }
-                },
-                domainSessionToUiSessionMapper = DomainSessionToUiSessionMapper(
-                    DomainHostToUiHostMapper()
-                ),
-            ),
+            mainScreenState = MainScreenViewModel.State(),
+            mainScreenBehavior = object : MainScreenBehavior {
+                override fun getCurrentSession() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun goToSignInScreen() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun goToSignUpScreen() {
+                    TODO("Not yet implemented")
+                }
+            },
             qrScreenViewModel = QRScreenViewModel(),
             onNavigateToPlacesScreenClick = {},
             onNavigateToScanCodeScreenClick = {},
