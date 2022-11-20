@@ -18,7 +18,6 @@ import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.TotalScreen
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.EntryBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.HomeScreenViewModel
-import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable
@@ -27,6 +26,7 @@ fun HomeScreen(
     homeSideEffect: HomeScreenViewModel.SideEffect,
     entryBehavior: EntryBehavior,
 ) {
+    val numberOfPlaces = homeState.numberOfPlaces
     val selectedTab = homeState.selectedTab
     val session = homeState.session
 
@@ -79,7 +79,10 @@ fun HomeScreen(
                 )
             }
             composable(NavItem.HomeNavItem.Area.baseRoute) {
-                AreaScreen()
+                entryBehavior.retrieveNextPlacesNumber()
+                AreaScreen(
+                    numberOfPlaces = numberOfPlaces
+                )
             }
             composable(NavItem.HomeNavItem.Total.baseRoute) {
                 TotalScreen()
@@ -106,6 +109,10 @@ fun HomeScreenPreview() {
                 }
 
                 override fun onTabSelected(tab: Int) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun retrieveNextPlacesNumber() {
                     TODO("Not yet implemented")
                 }
             })

@@ -64,4 +64,9 @@ interface MainActivityModule {
     fun bindsSetNumberOfPlacesUseCase(
         setNumberOfPlacesUseCaseImpl: SetNumberOfPlacesUseCaseImpl
     ): SetNumberOfPlacesUseCase
+
+    @Binds
+    fun bindsGetNumberOfPlacesUseCase(
+        getNumberOfPlacesUseCaseImpl: GetNumberOfPlacesUseCaseImpl
+    ): GetNumberOfPlacesUseCase
 }

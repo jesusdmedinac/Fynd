@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
 import com.jesusdmedinac.fynd.domain.usecase.GetLeaderUseCase
+import com.jesusdmedinac.fynd.domain.usecase.GetNumberOfPlacesUseCase
 import com.jesusdmedinac.fynd.domain.usecase.SetNumberOfPlacesUseCase
 import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToHomeScreenStateHostMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ class HomeScreenViewModel @Inject constructor(
     private val getLeaderUseCase: GetLeaderUseCase,
     private val getCurrentHostUseCase: GetCurrentHostUseCase,
     private val domainHostToHomeScreenStateHostMapper: DomainHostToHomeScreenStateHostMapper,
+    private val getNumberOfPlacesUseCase: GetNumberOfPlacesUseCase,
 ) :
     ViewModel(),
     ContainerHost<HomeScreenViewModel.State, HomeScreenViewModel.SideEffect>,
@@ -56,6 +58,7 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     data class State(
+        val numberOfPlaces: Int = 0,
         val selectedTab: Int = 0,
         val session: Session = Session.HostIsNotLoggedIn,
     ) {
@@ -94,10 +97,25 @@ class HomeScreenViewModel @Inject constructor(
             reduce { state.copy(selectedTab = selectedTab) }
         }
     }
+
+    override fun retrieveNextPlacesNumber() {
+        intent {
+            runCatching { getLeaderUseCase() }
+                .onSuccess { leader ->
+                    val email = leader.email
+                    getNumberOfPlacesUseCase(email)
+                        .collect { numberOfPlaces ->
+                            reduce { state.copy(numberOfPlaces = numberOfPlaces) }
+                        }
+                }
+                .onFailure { println(it) }
+        }
+    }
 }
 
 interface EntryBehavior {
     fun getCurrentSession()
     fun onNumberClick(number: Int)
     fun onTabSelected(selectedTab: Int)
+    fun retrieveNextPlacesNumber()
 }

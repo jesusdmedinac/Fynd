@@ -11,6 +11,6 @@ class SetNumberOfPlacesUseCaseImpl @Inject constructor(
     private val placesRepository: PlacesRepository
 ) : SetNumberOfPlacesUseCase {
     override suspend fun invoke(leaderEmail: String, number: Int) {
-        placesRepository.setCurrentNumberOfPlacesUseCase(leaderEmail, number)
+        placesRepository.setCurrentNumberOfPlaces(leaderEmail, number)
     }
 }
