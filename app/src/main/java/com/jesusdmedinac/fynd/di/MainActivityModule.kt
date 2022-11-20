@@ -24,11 +24,6 @@ interface MainActivityModule {
     ): JoinByLeaderCodeUseCase
 
     @Binds
-    fun bindsHostQrCodeUseCase(
-        hostQrCodeUseCaseImpl: HostQrCodeUseCaseImpl,
-    ): HostQrCodeUseCase
-
-    @Binds
     fun bindsHostRepository(
         hostRepositoryImpl: HostRepositoryImpl,
     ): HostRepository

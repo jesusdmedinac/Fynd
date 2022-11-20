@@ -6,12 +6,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jesusdmedinac.fynd.domain.model.Session
-import com.jesusdmedinac.fynd.domain.usecase.HostQrCodeUseCase
 import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
 import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToUiHostMapper
 import com.jesusdmedinac.fynd.presentation.mapper.DomainSessionToUiSessionMapper
@@ -45,7 +43,7 @@ fun OnboardingScreen(
         }
 
         composable(NavItem.OnboardingMainScreen.QRScreen.baseRoute) {
-            val qrScreenState by qrScreenViewModel.container.stateFlow.collectAsState()
+            val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
             val qrScreenSideEffect by qrScreenViewModel
                 .container
                 .sideEffectFlow
@@ -60,9 +58,8 @@ fun OnboardingScreen(
             }
 
             QRScreen(
-                qrScreenState,
-                qrScreenSideEffect,
-                qrScreenViewModel
+                mainScreenState.session,
+                qrScreenViewModel,
             )
         }
     }
@@ -84,13 +81,7 @@ fun OnboardingScreenPreview() {
                     DomainHostToUiHostMapper()
                 ),
             ),
-            qrScreenViewModel = QRScreenViewModel(
-                hostQrCodeUseCase = object : HostQrCodeUseCase {
-                    override fun invoke(): String {
-                        TODO("Not yet implemented")
-                    }
-                }
-            ),
+            qrScreenViewModel = QRScreenViewModel(),
             onNavigateToPlacesScreenClick = {},
             onNavigateToScanCodeScreenClick = {},
         )

@@ -5,12 +5,11 @@ import com.jesusdmedinac.fynd.data.remote.model.HostUser as RemoteHostUser
 import com.jesusdmedinac.fynd.data.remote.model.SignInHostUserCredentials
 import com.jesusdmedinac.fynd.data.remote.HostRemoteDataSource
 import com.jesusdmedinac.fynd.data.remote.model.SignUpHostUserCredentials
+import com.jesusdmedinac.fynd.data.repository.mapper.RemoteHostUserToLocalHostUserMapper
 import com.jesusdmedinac.fynd.domain.model.*
 import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
@@ -21,9 +20,30 @@ class HostRepositoryImpl @Inject constructor(
     @Named("io-dispatcher")
     private val ioDispatcher: CoroutineDispatcher,
     private val hostDao: HostDao,
+    private val remoteHostUserToLocalHostUserMapper: RemoteHostUserToLocalHostUserMapper
 ) : HostRepository {
-    override suspend fun getCurrentSession(): Flow<Session> = hostDao.isLoggedIn()
+    override suspend fun getCurrentSession(): Flow<Session> = hostDao.loggedHostUserFlow()
+        .flowOn(ioDispatcher)
         .map { it.toSession() }
+        .distinctUntilChanged()
+        .onEach {
+            val email = when (it) {
+                is Session.LoggedHost -> it.host.email
+                else -> return@onEach
+            }
+            hostRemoteDataSource
+                .getHostUserBy(email)
+                .flowOn(ioDispatcher)
+                .collect { remoteHostUser ->
+                    val localHostUser = remoteHostUserToLocalHostUserMapper.map(remoteHostUser)
+                    hostDao.insertHostUser(localHostUser)
+                }
+        }
+
+    override suspend fun getCurrentHost(): Host = (hostDao
+        .loggedHostUser()
+        .toSession() as Session.LoggedHost)
+        .host
 
     override suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult =
         withContext(ioDispatcher) {
@@ -47,7 +67,9 @@ class HostRepositoryImpl @Inject constructor(
                 runCatching { hostRemoteDataSource.signUp(signUpHostUserCredentials) }
                     .onFailure { return@withContext SignUpResult.Error(it) }
                     .onSuccess { remoteHostUser ->
-                        val localHostUser = remoteHostUser.toLocalHostUser()
+                        val localHostUser = remoteHostUser.toLocalHostUser().copy(
+                            isLoggedIn = true,
+                        )
                         hostDao.insertHostUser(localHostUser)
                         return@withContext SignUpResult.Success
                     }
@@ -70,18 +92,22 @@ class HostRepositoryImpl @Inject constructor(
         email,
         photoUrl,
         displayName,
-        isLoggedIn = true
+        qrCode,
+        isLoggedIn,
+        isLeader,
     )
 
-    private fun LocalHostUser?.toSession(): Session = this
-        ?.let {
-            Session.LoggedHost(
-                Host(
-                    it.email,
-                    it.displayName,
-                    isLeader = false,
-                )
+    private fun LocalHostUser?.toSession(): Session = this?.run {
+        Session.LoggedHost(
+            Host(
+                email,
+                photoUrl = "",
+                displayName,
+                qrCode,
+                isLoggedIn,
+                isLeader,
             )
-        }
+        )
+    }
         ?: run { Session.HostIsNotLoggedIn }
 }

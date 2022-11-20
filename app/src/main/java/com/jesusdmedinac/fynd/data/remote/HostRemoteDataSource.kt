@@ -1,31 +1,55 @@
 package com.jesusdmedinac.fynd.data.remote
 
 import com.google.common.hash.HashFunction
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.jesusdmedinac.fynd.data.mapper.FirebaseUserToHostUserMapper
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.jesusdmedinac.fynd.data.remote.mapper.MapToHostUserMapper
+import com.jesusdmedinac.fynd.data.remote.mapper.PasswordStringHasher
+import com.jesusdmedinac.fynd.data.remote.mapper.SignUpHostUserCredentialsToMapMapper
 import com.jesusdmedinac.fynd.data.remote.model.HostUser
 import com.jesusdmedinac.fynd.data.remote.model.SignInHostUserCredentials
 import com.jesusdmedinac.fynd.data.remote.model.SignUpHostUserCredentials
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.coroutines.resume
 
 
 interface HostRemoteDataSource {
+    suspend fun getHostUserBy(email: String): Flow<HostUser>
     suspend fun signIn(signInHostUserCredentials: SignInHostUserCredentials): HostUser
     suspend fun signUp(signUpHostUserCredentials: SignUpHostUserCredentials): HostUser
 }
 
 class HostRemoteDataSourceImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val firebaseUserToHostUserMapper: FirebaseUserToHostUserMapper,
-    @Named("sha256")
-    private val hashFunction: HashFunction,
+    @Named("io-dispatcher")
+    private val ioDispatcher: CoroutineDispatcher,
+    private val signUpHostUserCredentialsToMapMapper: SignUpHostUserCredentialsToMapMapper,
+    private val passwordStringHasher: PasswordStringHasher,
+    private val mapToHostUserMapper: MapToHostUserMapper,
 ) : HostRemoteDataSource {
+
+    override suspend fun getHostUserBy(email: String): Flow<HostUser> = callbackFlow {
+        firestore.collection("hosts")
+            .document(email)
+            .addSnapshotListener { nullableDocumentSnapshot, firebaseFirestoreException ->
+                val documentSnapshot = nullableDocumentSnapshot ?: return@addSnapshotListener
+                if (!documentSnapshot.exists()) return@addSnapshotListener
+                val data = documentSnapshot.data ?: return@addSnapshotListener
+                launch {
+                    val hostUser = mapToHostUserMapper.map(data)
+                    send(hostUser)
+                }
+            }
+        awaitClose()
+    }
 
     override suspend fun signIn(signInHostUserCredentials: SignInHostUserCredentials): HostUser =
         suspendCancellableCoroutine { continuation ->
@@ -40,17 +64,11 @@ class HostRemoteDataSourceImpl @Inject constructor(
                         documentSnapshot.data?.let { data ->
                             val password = data["password"] as? String ?: ""
                             val passwordFromCredential = signInHostUserCredentials.password
-                            val hashedPassword = passwordFromCredential.toHashedString()
+                            val hashedPassword = passwordStringHasher(passwordFromCredential)
                             if (password != hashedPassword) {
                                 continuation.cancel(Throwable("Invalid password for email $emailFromCredential"))
                             } else {
-                                val displayName: String = data["displayName"] as? String ?: ""
-                                val email: String = data["email"] as? String ?: ""
-                                val hostUser = HostUser(
-                                    photoUrl = "",
-                                    displayName = displayName,
-                                    email = email,
-                                )
+                                val hostUser = mapToHostUserMapper.map(data)
                                 continuation.resume(hostUser)
                             }
                         } ?: run {
@@ -63,45 +81,50 @@ class HostRemoteDataSourceImpl @Inject constructor(
                 }
         }
 
-    override suspend fun signUp(signUpHostUserCredentials: SignUpHostUserCredentials): HostUser =
-        suspendCancellableCoroutine { continuation ->
-            val emailFromCredential = signUpHostUserCredentials.email
+    override suspend fun signUp(signUpHostUserCredentials: SignUpHostUserCredentials): HostUser {
+        val generateQRCode = generateQRCode()
+        val emailFromCredentials = signUpHostUserCredentials.email
+        val signUpHostHashMap = signUpHostUserCredentialsToMapMapper
+            .map(signUpHostUserCredentials)
+            .toMutableMap()
+            .run {
+                set("qrCode", generateQRCode)
+                toMap()
+            }
+
+        return suspendCancellableCoroutine { continuation ->
             firestore.collection("hosts")
-                .document(emailFromCredential)
-                .set(
-                    hashMapOf(
-                        "photoUrl" to "",
-                        "displayName" to signUpHostUserCredentials.displayName,
-                        "email" to signUpHostUserCredentials.email,
-                        "password" to signUpHostUserCredentials.password.toHashedString()
-                    )
-                )
+                .document(emailFromCredentials)
+                .set(signUpHostHashMap)
                 .addOnSuccessListener {
-                    continuation.resume(signUpHostUserCredentials.toHostUser())
+                    continuation.resume(mapToHostUserMapper.map(signUpHostHashMap))
                 }
                 .addOnFailureListener {
                     continuation.cancel(it)
                 }
         }
-
-    private fun String.toHashedString(): String = with(hashFunction) {
-        newHasher()
-            .putString(this@toHashedString, Charsets.UTF_8)
-            .hash()
-            .toString()
     }
 
-    private fun SignUpHostUserCredentials.toHostUser() = HostUser(
-        "",
-        displayName,
-        email,
-    )
+    private suspend fun generateQRCode(): String {
+        var qrCode = ""
+        var validQRCode = false
+        while (!validQRCode) {
+            qrCode = (0..5)
+                .map { ('A'..'Z').random() }
+                .joinToString("")
 
-    private fun ProducerScope<HostUser?>.trySendHostUser(auth: FirebaseAuth) {
-        val hostUser = auth.getCurrentHostUser()
-        trySendBlocking(hostUser)
+            validQRCode = suspendCancellableCoroutine { continuation ->
+                firestore.collection("hosts")
+                    .whereEqualTo("qrCode", qrCode)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        continuation.resume(querySnapshot.documents.size == 0)
+                    }
+                    .addOnFailureListener {
+                        continuation.cancel(it)
+                    }
+            }
+        }
+        return qrCode
     }
-
-    private fun FirebaseAuth.getCurrentHostUser(): HostUser? = currentUser
-        ?.let(firebaseUserToHostUserMapper::map)
 }

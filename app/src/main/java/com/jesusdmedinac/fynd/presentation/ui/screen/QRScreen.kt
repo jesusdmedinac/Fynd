@@ -9,17 +9,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jesusdmedinac.fynd.presentation.ui.screen.qrscreen.QRDrawer
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
+import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable
 fun QRScreen(
-    qrScreenState: QRScreenViewModel.State = QRScreenViewModel.State(),
-    qrScreenSideEffect: QRScreenViewModel.SideEffect = QRScreenViewModel.SideEffect.Idle,
+    session: MainScreenViewModel.State.Session,
     qrScreenBehavior: QRScreenBehavior
 ) {
-    qrScreenBehavior.generateNewCode()
     Scaffold(
         modifier = Modifier.padding(32.dp)
     ) { paddingValues ->
@@ -33,7 +32,10 @@ fun QRScreen(
             Button(onClick = qrScreenBehavior::onStartServingClick) {
                 Text(text = "¡Comenzar a servir!")
             }
-            val qrCode = qrScreenState.qrCode
+            val qrCode = when (session) {
+                is MainScreenViewModel.State.Session.HostIsLoggedIn -> session.host.qrCode
+                else -> "-"
+            }
             QRDrawer(
                 qrCode,
                 modifier = Modifier
@@ -55,10 +57,6 @@ fun QRScreenPreview() {
     FyndTheme {
         QRScreen(
             qrScreenBehavior = object : QRScreenBehavior {
-                override fun generateNewCode() {
-                    TODO("Not yet implemented")
-                }
-
                 override fun onStartServingClick() {
                     TODO("Not yet implemented")
                 }
@@ -66,7 +64,8 @@ fun QRScreenPreview() {
                 override fun onScanCodeClick() {
                     TODO("Not yet implemented")
                 }
-            }
+            },
+            session = MainScreenViewModel.State.Session.HostIsNotLoggedIn
         )
     }
 }

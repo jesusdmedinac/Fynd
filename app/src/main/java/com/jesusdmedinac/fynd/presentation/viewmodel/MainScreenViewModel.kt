@@ -35,7 +35,7 @@ class MainScreenViewModel @Inject constructor(
             retrieveCurrentSessionUseCase()
                 .map(domainSessionToUiSessionMapper::map)
                 .distinctUntilChanged()
-                .collectLatest { uiSession ->
+                .collect { uiSession ->
                     onSessionStateChange(uiSession)
                 }
         }
@@ -53,6 +53,7 @@ class MainScreenViewModel @Inject constructor(
                     state.copy(session = State.Session.HostIsLoggedIn(uiSession.host))
                 }
             }
+            else -> Unit
         }
     }
 
@@ -71,9 +72,10 @@ class MainScreenViewModel @Inject constructor(
     }
 
     data class State(
-        val session: Session = Session.HostIsNotLoggedIn,
+        val session: Session = Session.Idle,
     ) {
         sealed class Session {
+            object Idle : Session()
             object HostIsNotLoggedIn : Session()
             data class HostIsLoggedIn(
                 val host: Host,
@@ -83,6 +85,7 @@ class MainScreenViewModel @Inject constructor(
         data class Host(
             val email: String,
             val displayName: String,
+            val qrCode: String,
             val isLeader: Boolean,
         )
     }

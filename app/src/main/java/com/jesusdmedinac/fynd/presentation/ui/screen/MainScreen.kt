@@ -1,7 +1,12 @@
 package com.jesusdmedinac.fynd.presentation.ui.screen
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenBehavior
@@ -16,14 +21,14 @@ fun MainScreen(
     mainScreenBehavior.goToOnboardingScreen()
 
     when (mainScreenState.session) {
-        MainScreenViewModel.State.Session.HostIsNotLoggedIn -> {
+        is MainScreenViewModel.State.Session.HostIsLoggedIn -> {
+            HomeScreen()
+        }
+        else -> {
             WelcomeScreen(
                 mainScreenBehavior::goToSignInScreen,
                 mainScreenBehavior::goToSignUpScreen,
             )
-        }
-        is MainScreenViewModel.State.Session.HostIsLoggedIn -> {
-            HomeScreen()
         }
     }
 }

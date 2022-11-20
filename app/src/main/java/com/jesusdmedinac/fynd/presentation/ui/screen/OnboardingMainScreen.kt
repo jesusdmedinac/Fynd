@@ -18,7 +18,7 @@ fun OnboardingMainScreen(
 ) {
     val displayName = when (session) {
         is MainScreenViewModel.State.Session.HostIsLoggedIn -> session.host.displayName
-        MainScreenViewModel.State.Session.HostIsNotLoggedIn -> "Anónimo"
+        else -> "Anónimo"
     }
     Scaffold { paddingValues ->
         Box(

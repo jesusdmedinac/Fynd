@@ -19,5 +19,8 @@ interface HostDao {
     fun isLoggedIn(email: String): Boolean
 
     @Query("SELECT * FROM hosts WHERE isLoggedIn = 1")
-    fun isLoggedIn(): Flow<HostUser>
+    fun loggedHostUserFlow(): Flow<HostUser>
+
+    @Query("SELECT * FROM hosts WHERE isLoggedIn = 1")
+    fun loggedHostUser(): HostUser?
 }

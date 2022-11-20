@@ -9,6 +9,9 @@ sealed class Session {
 
 data class Host(
     val email: String,
+    val photoUrl: String,
     val displayName: String,
+    val qrCode: String,
+    val isLoggedIn: Boolean,
     val isLeader: Boolean,
 )

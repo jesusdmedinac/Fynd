@@ -7,12 +7,10 @@ import javax.inject.Inject
 class DomainSessionToUiSessionMapper @Inject constructor(
     private val domainHostToUiHostMapper: DomainHostToUiHostMapper,
 ) {
-    fun map(input: Session): MainScreenViewModel.State.Session = with(input) {
-        when (this) {
-            Session.HostIsNotLoggedIn -> MainScreenViewModel.State.Session.HostIsNotLoggedIn
-            is Session.LoggedHost -> MainScreenViewModel.State.Session.HostIsLoggedIn(
-                domainHostToUiHostMapper.map(host)
-            )
-        }
+    fun map(input: Session): MainScreenViewModel.State.Session = when (input) {
+        Session.HostIsNotLoggedIn -> MainScreenViewModel.State.Session.HostIsNotLoggedIn
+        is Session.LoggedHost -> MainScreenViewModel.State.Session.HostIsLoggedIn(
+            domainHostToUiHostMapper.map(input.host)
+        )
     }
 }

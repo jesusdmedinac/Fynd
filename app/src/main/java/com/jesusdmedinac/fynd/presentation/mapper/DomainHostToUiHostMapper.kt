@@ -9,6 +9,7 @@ class DomainHostToUiHostMapper @Inject constructor() {
         MainScreenViewModel.State.Host(
             email,
             displayName,
+            qrCode,
             isLeader,
         )
     }
