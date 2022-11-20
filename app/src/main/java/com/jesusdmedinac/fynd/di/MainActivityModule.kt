@@ -2,8 +2,10 @@ package com.jesusdmedinac.fynd.di
 
 import com.jesusdmedinac.fynd.data.repository.HostRepositoryImpl
 import com.jesusdmedinac.fynd.data.repository.LeaderRepositoryImpl
+import com.jesusdmedinac.fynd.data.repository.PlacesRepositoryImpl
 import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import com.jesusdmedinac.fynd.domain.repository.LeaderRepository
+import com.jesusdmedinac.fynd.domain.repository.PlacesRepository
 import com.jesusdmedinac.fynd.domain.usecase.*
 import dagger.Binds
 import dagger.Module
@@ -29,6 +31,11 @@ interface MainActivityModule {
     ): HostRepository
 
     @Binds
+    fun bindsPlacesRepository(
+        placesRepositoryImpl: PlacesRepositoryImpl
+    ): PlacesRepository
+
+    @Binds
     fun bindsRetrieveCurrentSessionUseCase(
         retrieveCurrentSessionUseCaseImpl: RetrieveCurrentSessionUseCaseImpl
     ): RetrieveCurrentSessionUseCase
@@ -39,6 +46,11 @@ interface MainActivityModule {
     ): GetCurrentHostUseCase
 
     @Binds
+    fun bindsGetLeaderUseCase(
+        getLeaderUseCaseImpl: GetLeaderUseCaseImpl
+    ): GetLeaderUseCase
+
+    @Binds
     fun bindsSignInUseCase(
         signInUseCaseImpl: SignInUseCaseImpl
     ): SignInUseCase
@@ -47,4 +59,9 @@ interface MainActivityModule {
     fun bindsSignUpUseCase(
         signUpUseCaseImpl: SignUpUseCaseImpl
     ): SignUpUseCase
+
+    @Binds
+    fun bindsSetNumberOfPlacesUseCase(
+        setNumberOfPlacesUseCaseImpl: SetNumberOfPlacesUseCaseImpl
+    ): SetNumberOfPlacesUseCase
 }

@@ -15,6 +15,9 @@ sealed class NavItem(
 
     sealed class HomeNavItem(override val baseRoute: String) : NavItem(baseRoute) {
         object Host : HomeNavItem("home-host-screen")
+        object Entry : HomeNavItem("home-entry-screen")
+        object Area : HomeNavItem("home-area-screen")
+        object Total : HomeNavItem("home-total-screen")
     }
 
     sealed class AuthScreen(override val baseRoute: String) : NavItem(baseRoute) {

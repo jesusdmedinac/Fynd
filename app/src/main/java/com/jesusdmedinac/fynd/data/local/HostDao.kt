@@ -23,4 +23,7 @@ interface HostDao {
 
     @Query("SELECT * FROM hosts WHERE isLoggedIn = 1")
     fun loggedHostUser(): HostUser?
+
+    @Query("SELECT * FROM hosts WHERE isLeader = 1")
+    fun leaderHostUser(): HostUser?
 }
