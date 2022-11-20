@@ -96,7 +96,7 @@ fun FyndApp(
                 mainScreenViewModel,
                 qrScreenViewModel,
                 onNavigateToPlacesScreenClick = {
-                    navController.navigate(NavItem.PlacesNavItem.baseRoute)
+                    navController.navigate(NavItem.HomeNavItem.Host.baseRoute)
                 },
                 onNavigateToScanCodeScreenClick = {
                     launchScanner()
