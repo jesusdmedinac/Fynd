@@ -4,9 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
-import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToMainScreenStateHostMapper
+import com.jesusdmedinac.fynd.domain.usecase.GetLeaderUseCase
+import com.jesusdmedinac.fynd.domain.usecase.SetNumberOfPlacesUseCase
+import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToHomeScreenStateHostMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
@@ -17,13 +18,15 @@ import org.orbitmvi.orbit.syntax.simple.reduce
 import javax.inject.Inject
 
 @HiltViewModel
-class MainScreenViewModel @Inject constructor(
+class HomeScreenViewModel @Inject constructor(
+    private val setNumberOfPlacesUseCase: SetNumberOfPlacesUseCase,
+    private val getLeaderUseCase: GetLeaderUseCase,
     private val getCurrentHostUseCase: GetCurrentHostUseCase,
-    private val domainHostToMainScreenStateHostMapper: DomainHostToMainScreenStateHostMapper,
+    private val domainHostToHomeScreenStateHostMapper: DomainHostToHomeScreenStateHostMapper,
 ) :
     ViewModel(),
-    MainScreenBehavior,
-    ContainerHost<MainScreenViewModel.State, MainScreenViewModel.SideEffect> {
+    ContainerHost<HomeScreenViewModel.State, HomeScreenViewModel.SideEffect>,
+    EntryBehavior {
     override val container: Container<State, SideEffect> =
         viewModelScope.container(State())
 
@@ -32,7 +35,7 @@ class MainScreenViewModel @Inject constructor(
             runCatching { getCurrentHostUseCase() }
                 .onFailure { Log.e("dani", it.message.toString()) }
                 .onSuccess { host ->
-                    val stateHost = domainHostToMainScreenStateHostMapper.map(host)
+                    val stateHost = domainHostToHomeScreenStateHostMapper.map(host)
                     onSessionStateChange(State.Session.HostIsLoggedIn(stateHost))
                 }
         }
@@ -45,7 +48,6 @@ class MainScreenViewModel @Inject constructor(
                 reduce { state.copy(session = State.Session.HostIsNotLoggedIn) }
             }
             is State.Session.HostIsLoggedIn -> {
-                postSideEffect(SideEffect.NavigateToOnboardingScreen)
                 reduce {
                     state.copy(session = State.Session.HostIsLoggedIn(uiSession.host))
                 }
@@ -53,21 +55,8 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    override fun goToSignInScreen() {
-        intent {
-            delay(100)
-            postSideEffect(SideEffect.NavigateToSignInScreen)
-        }
-    }
-
-    override fun goToSignUpScreen() {
-        intent {
-            delay(100)
-            postSideEffect(SideEffect.NavigateToSignUpScreen)
-        }
-    }
-
     data class State(
+        val selectedTab: Int = 0,
         val session: Session = Session.HostIsNotLoggedIn,
     ) {
         sealed class Session {
@@ -87,14 +76,28 @@ class MainScreenViewModel @Inject constructor(
 
     sealed class SideEffect {
         object Idle : SideEffect()
-        object NavigateToOnboardingScreen : SideEffect()
-        object NavigateToSignInScreen : SideEffect()
-        object NavigateToSignUpScreen : SideEffect()
+    }
+
+    override fun onNumberClick(number: Int) {
+        intent {
+            runCatching { getLeaderUseCase() }
+                .onSuccess { leader ->
+                    val email = leader.email
+                    setNumberOfPlacesUseCase(email, number)
+                }
+                .onFailure { println(it) }
+        }
+    }
+
+    override fun onTabSelected(selectedTab: Int) {
+        intent {
+            reduce { state.copy(selectedTab = selectedTab) }
+        }
     }
 }
 
-interface MainScreenBehavior {
+interface EntryBehavior {
     fun getCurrentSession()
-    fun goToSignInScreen()
-    fun goToSignUpScreen()
+    fun onNumberClick(number: Int)
+    fun onTabSelected(selectedTab: Int)
 }

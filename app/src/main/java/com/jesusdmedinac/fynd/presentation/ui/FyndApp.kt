@@ -26,7 +26,7 @@ fun FyndApp(
     val qrScreenViewModel: QRScreenViewModel = hiltViewModel()
     val authSignInViewModel: AuthSignInViewModel = hiltViewModel()
     val authSignUpViewModel: AuthSignUpViewModel = hiltViewModel()
-    val homeViewModel: HomeViewModel = hiltViewModel()
+    val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
 
     val navController = rememberNavController()
     var authStartDestination by remember { mutableStateOf(NavItem.AuthScreen.SignInScreen.baseRoute) }
@@ -123,13 +123,13 @@ fun FyndApp(
         }
 
         composable(NavItem.HomeNavItem.Host.baseRoute) {
-            val homeState by homeViewModel.container.stateFlow.collectAsState()
-            val homeSideEffect by homeViewModel.container.sideEffectFlow.collectAsState(initial = HomeViewModel.SideEffect.Idle)
+            val homeState by homeScreenViewModel.container.stateFlow.collectAsState()
+            val homeSideEffect by homeScreenViewModel.container.sideEffectFlow.collectAsState(initial = HomeScreenViewModel.SideEffect.Idle)
 
             HomeScreen(
                 homeState,
                 homeSideEffect,
-                homeViewModel
+                homeScreenViewModel
             )
         }
     }

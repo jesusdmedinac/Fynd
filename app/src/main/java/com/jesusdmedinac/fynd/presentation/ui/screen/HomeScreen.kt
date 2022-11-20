@@ -17,61 +17,61 @@ import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.EntryScreen
 import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.TotalScreen
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.EntryBehavior
-import com.jesusdmedinac.fynd.presentation.viewmodel.HomeViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.HomeScreenViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable
 fun HomeScreen(
-    homeState: HomeViewModel.State,
-    homeSideEffect: HomeViewModel.SideEffect,
+    homeState: HomeScreenViewModel.State,
+    homeSideEffect: HomeScreenViewModel.SideEffect,
     entryBehavior: EntryBehavior,
 ) {
-    Scaffold(bottomBar = {
-        var selectedTab = homeState.selectedTab
+    val selectedTab = homeState.selectedTab
+    val session = homeState.session
 
+    entryBehavior.getCurrentSession()
+
+    Scaffold(bottomBar = {
         NavigationBar {
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        Icons.Filled.Home,
-                        contentDescription = null
+            when {
+                session is HomeScreenViewModel.State.Session.HostIsLoggedIn && session.host.isLeader -> {
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                Icons.Filled.Home, contentDescription = null
+                            )
+                        },
+                        label = { Text("Entrada") },
+                        selected = selectedTab == 0,
+                        onClick = { entryBehavior.onTabSelected(0) },
                     )
-                },
-                label = { Text("Entrada") },
-                selected = selectedTab == 0,
-                onClick = { selectedTab = 0 },
-            )
+                }
+                else -> Unit
+            }
             NavigationBarItem(
                 icon = {
                     Icon(
-                        Icons.Filled.Square,
-                        contentDescription = null
+                        Icons.Filled.Square, contentDescription = null
                     )
                 },
                 label = { Text("Zona") },
                 selected = selectedTab == 1,
-                onClick = { selectedTab = 1 },
-            )
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        Icons.Filled.Workspaces,
-                        contentDescription = null
-                    )
-                },
-                label = { Text("Total") },
-                selected = selectedTab == 2,
-                onClick = { selectedTab = 2 },
+                onClick = { entryBehavior.onTabSelected(1) },
             )
         }
     }) { paddingValues ->
         val navController = rememberNavController()
+        val startDestination = when {
+            session is HomeScreenViewModel.State.Session.HostIsLoggedIn && session.host.isLeader -> NavItem.HomeNavItem.Entry.baseRoute
+            else -> NavItem.HomeNavItem.Area.baseRoute
+        }
         NavHost(
             navController,
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize(),
-            startDestination = NavItem.HomeNavItem.Entry.baseRoute,
+            startDestination = startDestination,
         ) {
             composable(NavItem.HomeNavItem.Entry.baseRoute) {
                 EntryScreen(
@@ -94,13 +94,20 @@ fun HomeScreen(
 fun HomeScreenPreview() {
     FyndTheme {
         HomeScreen(
-            homeState = HomeViewModel.State(),
-            homeSideEffect = HomeViewModel.SideEffect.Idle,
+            homeState = HomeScreenViewModel.State(),
+            homeSideEffect = HomeScreenViewModel.SideEffect.Idle,
             entryBehavior = object : EntryBehavior {
+                override fun getCurrentSession() {
+                    TODO("Not yet implemented")
+                }
+
                 override fun onNumberClick(number: Int) {
                     TODO("Not yet implemented")
                 }
-            }
-        )
+
+                override fun onTabSelected(tab: Int) {
+                    TODO("Not yet implemented")
+                }
+            })
     }
 }
