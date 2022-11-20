@@ -11,11 +11,13 @@ import com.jesusdmedinac.fynd.presentation.ui.screen.qrscreen.QRDrawer
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenBehavior
+import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable
 fun QRScreen(
     session: MainScreenViewModel.State.Session,
+    qrScreenState: QRScreenViewModel.State,
     qrScreenBehavior: QRScreenBehavior
 ) {
     Scaffold(
@@ -43,7 +45,14 @@ fun QRScreen(
             Text(text = qrCode, style = MaterialTheme.typography.titleLarge)
             Text(text = "Comparte tu código de líder")
             Button(onClick = qrScreenBehavior::onScanCodeClick) {
-                Text(text = "O escanea el código del líder")
+                if (qrScreenState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    Text(text = "O escanea el código del líder")
+                }
             }
         }
     }
@@ -64,6 +73,7 @@ fun QRScreenPreview() {
                     TODO("Not yet implemented")
                 }
             },
+            qrScreenState = QRScreenViewModel.State(),
             session = MainScreenViewModel.State.Session.HostIsNotLoggedIn
         )
     }

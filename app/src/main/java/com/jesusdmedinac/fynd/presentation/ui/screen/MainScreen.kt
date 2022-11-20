@@ -20,7 +20,7 @@ fun MainScreen(
 
     when (mainScreenState.session) {
         is MainScreenViewModel.State.Session.HostIsLoggedIn -> {
-            HomeScreen()
+            LoadingScreen()
         }
         else -> {
             WelcomeScreen(

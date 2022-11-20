@@ -13,6 +13,10 @@ sealed class NavItem(
 
     object PlacesNavItem : NavItem("places-screen")
 
+    sealed class HomeNavItem(override val baseRoute: String) : NavItem(baseRoute) {
+        object Host : HomeNavItem("home-host-screen")
+    }
+
     sealed class AuthScreen(override val baseRoute: String) : NavItem(baseRoute) {
         object Host : AuthScreen("auth-host-screen")
         object SignInScreen : AuthScreen("auth-login-screen")

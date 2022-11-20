@@ -7,16 +7,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jesusdmedinac.fynd.domain.model.Host
-import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
 import com.jesusdmedinac.fynd.domain.usecase.JoinByLeaderCodeUseCase
 import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
-import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToStateHostMapper
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
-import com.jesusdmedinac.fynd.presentation.ui.screen.AuthScreen
-import com.jesusdmedinac.fynd.presentation.ui.screen.MainScreen
-import com.jesusdmedinac.fynd.presentation.ui.screen.OnboardingScreen
-import com.jesusdmedinac.fynd.presentation.ui.screen.PlacesScreen
+import com.jesusdmedinac.fynd.presentation.ui.screen.*
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +29,20 @@ fun FyndApp(
 
     val navController = rememberNavController()
     var authStartDestination by remember { mutableStateOf(NavItem.AuthScreen.SignInScreen.baseRoute) }
+    val mainActivitySideEffect by mainActivityViewModel
+        .container
+        .sideEffectFlow
+        .collectAsState(initial = MainActivityViewModel.SideEffect.Idle)
+
+    LaunchedEffect(mainActivitySideEffect) {
+        when (mainActivitySideEffect) {
+            MainActivityViewModel.SideEffect.Idle -> Unit
+            MainActivityViewModel.SideEffect.NavigateToHome -> {
+                navController.navigate(NavItem.HomeNavItem.Host.baseRoute)
+            }
+        }
+    }
+
     NavHost(navController = navController, startDestination = NavItem.MainScreen.baseRoute) {
         composable(NavItem.MainScreen.baseRoute) {
             val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
@@ -111,6 +119,10 @@ fun FyndApp(
                     navController.navigate(NavItem.OnboardingMainScreen.Host.baseRoute)
                 },
             )
+        }
+
+        composable(NavItem.HomeNavItem.Host.baseRoute) {
+            HomeScreen()
         }
     }
 }

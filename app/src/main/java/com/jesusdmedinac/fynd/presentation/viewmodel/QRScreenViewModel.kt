@@ -8,6 +8,7 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
 import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
+import org.orbitmvi.orbit.syntax.simple.reduce
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,17 +21,22 @@ class QRScreenViewModel @Inject constructor() :
 
     override fun onStartServingClick() {
         intent {
+            reduce { state.copy(isLoading = true) }
             postSideEffect(SideEffect.NavigateToPlacesScreen)
         }
     }
 
     override fun onScanCodeClick() {
         intent {
+            reduce { state.copy(isLoading = true) }
             postSideEffect(SideEffect.NavigateToScanCodeScreen)
         }
     }
 
-    class State
+    data class State(
+        val isLoading: Boolean = false,
+    )
+
     sealed class SideEffect {
         object Idle : SideEffect()
         object NavigateToPlacesScreen : SideEffect()

@@ -66,7 +66,13 @@ fun AuthSignUpScreen(
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            var displayNameTextFieldValue by remember { mutableStateOf(TextFieldValue(authSignUpState.displayName)) }
+            var displayNameTextFieldValue by remember {
+                mutableStateOf(
+                    TextFieldValue(
+                        authSignUpState.displayName
+                    )
+                )
+            }
             OutlinedTextField(
                 displayNameTextFieldValue,
                 onValueChange = {
@@ -86,8 +92,9 @@ fun AuthSignUpScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
             var passwordTextFieldValue by remember { mutableStateOf(TextFieldValue(authSignUpState.password)) }
-            val visualTransformation = if (authSignUpState.isPasswordVisible) VisualTransformation.None
-            else PasswordVisualTransformation()
+            val visualTransformation =
+                if (authSignUpState.isPasswordVisible) VisualTransformation.None
+                else PasswordVisualTransformation()
             val visibilityIcons =
                 if (authSignUpState.isPasswordVisible) Icons.Default.Visibility
                 else Icons.Default.VisibilityOff
@@ -117,7 +124,13 @@ fun AuthSignUpScreen(
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            var confirmPasswordTextFieldValue by remember { mutableStateOf(TextFieldValue(authSignUpState.confirmPassword)) }
+            var confirmPasswordTextFieldValue by remember {
+                mutableStateOf(
+                    TextFieldValue(
+                        authSignUpState.confirmPassword
+                    )
+                )
+            }
             OutlinedTextField(
                 confirmPasswordTextFieldValue,
                 onValueChange = {
@@ -151,8 +164,7 @@ fun AuthSignUpScreen(
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
-
-                        )
+                    )
                 } else {
                     Text("Registrarme")
                 }

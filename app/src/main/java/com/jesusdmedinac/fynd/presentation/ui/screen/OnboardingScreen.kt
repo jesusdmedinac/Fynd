@@ -43,6 +43,10 @@ fun OnboardingScreen(
         }
 
         composable(NavItem.OnboardingMainScreen.QRScreen.baseRoute) {
+            val qrScreenState by qrScreenViewModel
+                .container
+                .stateFlow
+                .collectAsState()
             val qrScreenSideEffect by qrScreenViewModel
                 .container
                 .sideEffectFlow
@@ -58,6 +62,7 @@ fun OnboardingScreen(
 
             QRScreen(
                 mainScreenState.session,
+                qrScreenState,
                 qrScreenViewModel,
             )
         }

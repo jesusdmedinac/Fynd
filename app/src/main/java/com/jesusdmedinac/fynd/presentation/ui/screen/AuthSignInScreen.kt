@@ -103,7 +103,6 @@ fun AuthSignInScreen(
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
-
                     )
                 } else {
                     Text("Iniciar sesión")

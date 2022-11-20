@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.jesusdmedinac.fynd.domain.usecase.JoinByLeaderCodeUseCase
 import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
 import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,13 +32,21 @@ class MainActivityViewModel @Inject constructor(
 
     override fun onCodeScanned(code: String) {
         intent {
-            joinByLeaderCodeUseCase(code)
+            runCatching { joinByLeaderCodeUseCase(code) }
+                .onSuccess {
+                    delay(100)
+                    postSideEffect(SideEffect.NavigateToHome)
+                }
+                .onFailure { println(it) }
         }
     }
 
     class State
 
-    sealed class SideEffect
+    sealed class SideEffect {
+        object NavigateToHome : SideEffect()
+        object Idle : SideEffect()
+    }
 }
 
 interface MainActivityBehavior {
