@@ -8,4 +8,5 @@ interface LeaderRepository {
         hostCode: String,
     )
     suspend fun getCurrentLeader(): Host?
+    suspend fun isLeader(email: String): Boolean
 }

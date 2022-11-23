@@ -16,12 +16,10 @@ class RetrieveCurrentSessionUseCase @Inject constructor(
     suspend operator fun invoke(coroutineScope: CoroutineScope) {
         coroutineScope.launch {
             while (true) {
-                delay(Random.nextInt(1, 10) * 1000L)
+                delay(5000)
                 runCatching { getCurrentHostUseCase() }
                     .onFailure { Log.e("dani", it.message.toString()) }
-                    .onSuccess { host ->
-                        hostRepository.retrieveCurrentSession(host.email)
-                    }
+                    .onSuccess { host -> hostRepository.retrieveCurrentSession(host.email) }
             }
         }
     }

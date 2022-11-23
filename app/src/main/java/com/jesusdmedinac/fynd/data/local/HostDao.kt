@@ -15,8 +15,11 @@ interface HostDao {
     @Query("SELECT * FROM hosts WHERE email = :email")
     fun getHostUser(email: String): HostUser
 
-    @Query("SELECT count(*) FROM hosts WHERE email = :email")
+    @Query("SELECT count(*) FROM hosts WHERE email = :email AND isLoggedIn = 1")
     fun isLoggedIn(email: String): Boolean
+
+    @Query("SELECT count(*) FROM hosts WHERE email = :email AND isLeader = 1")
+    fun isLeader(email: String): Boolean
 
     @Query("SELECT * FROM hosts WHERE isLoggedIn = 1")
     fun loggedHostUserFlow(): Flow<HostUser>

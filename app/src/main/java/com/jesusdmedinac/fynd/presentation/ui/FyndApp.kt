@@ -40,6 +40,10 @@ fun FyndApp(
         .sideEffectFlow
         .collectAsState(initial = MainActivityViewModel.SideEffect.Idle)
 
+    LaunchedEffect(Unit) {
+        mainActivityViewModel.retrieveCurrentSession()
+    }
+
     LaunchedEffect(mainActivitySideEffect) {
         when (mainActivitySideEffect) {
             MainActivityViewModel.SideEffect.Idle -> Unit
@@ -95,14 +99,8 @@ fun FyndApp(
         }
 
         composable(NavItem.OnboardingHostScreen.Host.baseRoute) {
-            val onboardingMainScreenState by onboardingHostScreenViewModel.container.stateFlow.collectAsState()
-
-            LaunchedEffect(Unit) {
-                mainScreenViewModel.getCurrentSession()
-            }
-
             OnboardingHostScreen(
-                onboardingMainScreenState,
+                onboardingHostScreenViewModel,
                 qrScreenViewModel,
                 onNavigateToPlacesScreenClick = {
                     navController.navigate(NavItem.HomeNavItem.Host.baseRoute)
@@ -125,7 +123,6 @@ fun FyndApp(
                     authStartDestination = NavItem.AuthScreen.SignInScreen.baseRoute
                 },
                 onUserLoggedIn = {
-                    mainActivityViewModel.retrieveCurrentSession()
                     navController.navigate(NavItem.OnboardingHostScreen.Host.baseRoute)
                 },
             )
@@ -180,6 +177,10 @@ fun FyndAppPreview() {
                         }
 
                         override suspend fun getCurrentLeader(): Host? {
+                            TODO("Not yet implemented")
+                        }
+
+                        override suspend fun isLeader(email: String): Boolean {
                             TODO("Not yet implemented")
                         }
                     },

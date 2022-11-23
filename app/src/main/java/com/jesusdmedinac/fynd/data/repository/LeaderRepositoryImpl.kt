@@ -38,6 +38,10 @@ class LeaderRepositoryImpl @Inject constructor(
             ?.host
     }
 
+    override suspend fun isLeader(email: String) = withContext(ioDispatcher) {
+        hostDao.isLeader(email)
+    }
+
     private fun HostUser?.toSession(): Session = this?.run {
         Session.LoggedHost(
             Host(

@@ -9,12 +9,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.OnboardingHostScreenViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.OnboardingMainScreenBehavior
 
 @ExperimentalMaterial3Api
 @Composable
 fun OnboardingMainScreen(
     session: OnboardingHostScreenViewModel.State.Session,
-    onStartClick: () -> Unit,
+    onboardingHostScreenBehavior: OnboardingMainScreenBehavior,
 ) {
     val displayName = when (session) {
         is OnboardingHostScreenViewModel.State.Session.HostIsLoggedIn -> session.host.displayName
@@ -40,7 +41,9 @@ fun OnboardingMainScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(32.dp))
-                Button(onClick = onStartClick) {
+                Button(onClick = {
+                    onboardingHostScreenBehavior.onStartClick()
+                }) {
                     Text(text = "Comenzar")
                 }
             }
@@ -55,6 +58,15 @@ fun OnboardingMainScreenPreview() {
     FyndTheme {
         OnboardingMainScreen(
             session = OnboardingHostScreenViewModel.State.Session.HostIsNotLoggedIn,
-        ) {}
+            onboardingHostScreenBehavior = object : OnboardingMainScreenBehavior {
+                override fun onScreenLoad() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onStartClick() {
+                    TODO("Not yet implemented")
+                }
+            },
+        )
     }
 }

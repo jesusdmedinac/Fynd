@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
+import com.jesusdmedinac.fynd.domain.usecase.IsHostALeaderUseCase
+import com.jesusdmedinac.fynd.domain.usecase.SetOnboardingWelcomeScreenViewedUseCase
 import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToOnboardingMainScreenStateHostMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.Container
@@ -19,6 +21,8 @@ import javax.inject.Inject
 class OnboardingHostScreenViewModel @Inject constructor(
     private val getCurrentHostUseCase: GetCurrentHostUseCase,
     private val domainHostToOnboardingMainScreenStateHostMapper: DomainHostToOnboardingMainScreenStateHostMapper,
+    private val setOnboardingWelcomeScreenViewedUseCase: SetOnboardingWelcomeScreenViewedUseCase,
+    private val isHostALeaderUseCase: IsHostALeaderUseCase,
 ) :
     ViewModel(),
     OnboardingMainScreenBehavior,
@@ -26,7 +30,7 @@ class OnboardingHostScreenViewModel @Inject constructor(
     override val container: Container<State, SideEffect> =
         viewModelScope.container(State())
 
-    override fun getCurrentSession() {
+    override fun onScreenLoad() {
         intent {
             runCatching { getCurrentHostUseCase() }
                 .onFailure { Log.e("dani", it.message.toString()) }
@@ -37,6 +41,13 @@ class OnboardingHostScreenViewModel @Inject constructor(
         }
     }
 
+    override fun onStartClick() {
+        intent {
+            setOnboardingWelcomeScreenViewedUseCase(true)
+            postSideEffect(SideEffect.NavigateToQRScreen)
+        }
+    }
+
     private suspend fun SimpleSyntax<State, SideEffect>.onSessionStateChange(uiSession: State.Session) {
         postSideEffect(SideEffect.Idle)
         return when (uiSession) {
@@ -44,6 +55,11 @@ class OnboardingHostScreenViewModel @Inject constructor(
                 reduce { state.copy(session = State.Session.HostIsNotLoggedIn) }
             }
             is State.Session.HostIsLoggedIn -> {
+                val host = uiSession.host
+                Log.e("dani", "${isHostALeaderUseCase(host.email)}")
+                if (isHostALeaderUseCase(host.email)) {
+                    postSideEffect(SideEffect.NavigateToPlacesScreen)
+                }
                 reduce {
                     state.copy(session = State.Session.HostIsLoggedIn(uiSession.host))
                 }
@@ -72,9 +88,12 @@ class OnboardingHostScreenViewModel @Inject constructor(
 
     sealed class SideEffect {
         object Idle : SideEffect()
+        object NavigateToQRScreen : SideEffect()
+        object NavigateToPlacesScreen : SideEffect()
     }
 }
 
 interface OnboardingMainScreenBehavior {
-    fun getCurrentSession()
+    fun onScreenLoad()
+    fun onStartClick()
 }

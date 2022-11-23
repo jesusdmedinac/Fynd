@@ -27,8 +27,15 @@ class HostRepositoryImpl @Inject constructor(
             .getHostUserBy(email)
             .flowOn(ioDispatcher)
             .collect { remoteHostUser ->
-                val localHostUser = remoteHostUserToLocalHostUserMapper.map(remoteHostUser)
-                withContext(ioDispatcher) { hostDao.insertHostUser(localHostUser) }
+                withContext(ioDispatcher) {
+                    val localHostUser = remoteHostUserToLocalHostUserMapper
+                        .map(remoteHostUser)
+                        .copy(
+                            isOnboardingWelcomeScreenViewed =
+                            hostDao.isOnboardingWelcomeScreenViewed()
+                        )
+                    hostDao.insertHostUser(localHostUser)
+                }
             }
     }
 

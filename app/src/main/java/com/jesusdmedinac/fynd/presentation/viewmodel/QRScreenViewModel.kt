@@ -2,6 +2,7 @@ package com.jesusdmedinac.fynd.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jesusdmedinac.fynd.domain.usecase.SetOnboardingWelcomeScreenViewedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
