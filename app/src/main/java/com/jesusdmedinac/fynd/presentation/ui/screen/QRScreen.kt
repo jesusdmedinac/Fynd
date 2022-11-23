@@ -9,14 +9,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jesusdmedinac.fynd.presentation.ui.screen.qrscreen.QRDrawer
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
-import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.OnboardingHostScreenViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable
 fun QRScreen(
-    session: MainScreenViewModel.State.Session,
+    session: OnboardingHostScreenViewModel.State.Session,
     qrScreenState: QRScreenViewModel.State,
     qrScreenBehavior: QRScreenBehavior
 ) {
@@ -34,7 +34,7 @@ fun QRScreen(
                 Text(text = "¡Comenzar a servir!")
             }
             val qrCode = when (session) {
-                is MainScreenViewModel.State.Session.HostIsLoggedIn -> session.host.qrCode
+                is OnboardingHostScreenViewModel.State.Session.HostIsLoggedIn -> session.host.qrCode
                 else -> "-"
             }
             QRDrawer(
@@ -74,7 +74,7 @@ fun QRScreenPreview() {
                 }
             },
             qrScreenState = QRScreenViewModel.State(),
-            session = MainScreenViewModel.State.Session.HostIsNotLoggedIn
+            session = OnboardingHostScreenViewModel.State.Session.HostIsNotLoggedIn
         )
     }
 }

@@ -3,9 +3,11 @@ package com.jesusdmedinac.fynd.di
 import com.jesusdmedinac.fynd.data.repository.HostRepositoryImpl
 import com.jesusdmedinac.fynd.data.repository.LeaderRepositoryImpl
 import com.jesusdmedinac.fynd.data.repository.PlacesRepositoryImpl
+import com.jesusdmedinac.fynd.data.repository.UserSettingsRepositoryImpl
 import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import com.jesusdmedinac.fynd.domain.repository.LeaderRepository
 import com.jesusdmedinac.fynd.domain.repository.PlacesRepository
+import com.jesusdmedinac.fynd.domain.repository.UserSettingsRepository
 import com.jesusdmedinac.fynd.domain.usecase.*
 import dagger.Binds
 import dagger.Module
@@ -21,11 +23,6 @@ interface MainActivityModule {
     ): LeaderRepository
 
     @Binds
-    fun bindsJoinByLeaderCodeUseCase(
-        joinByLeaderCodeUseCaseImpl: JoinByLeaderCodeUseCaseImpl
-    ): JoinByLeaderCodeUseCase
-
-    @Binds
     fun bindsHostRepository(
         hostRepositoryImpl: HostRepositoryImpl,
     ): HostRepository
@@ -36,37 +33,7 @@ interface MainActivityModule {
     ): PlacesRepository
 
     @Binds
-    fun bindsRetrieveCurrentSessionUseCase(
-        retrieveCurrentSessionUseCaseImpl: RetrieveCurrentSessionUseCaseImpl
-    ): RetrieveCurrentSessionUseCase
-
-    @Binds
-    fun bindsGetCurrentHostUseCase(
-        getCurrentHostUseCaseImpl: GetCurrentHostUseCaseImpl
-    ): GetCurrentHostUseCase
-
-    @Binds
-    fun bindsGetLeaderUseCase(
-        getLeaderUseCaseImpl: GetLeaderUseCaseImpl
-    ): GetLeaderUseCase
-
-    @Binds
-    fun bindsSignInUseCase(
-        signInUseCaseImpl: SignInUseCaseImpl
-    ): SignInUseCase
-
-    @Binds
-    fun bindsSignUpUseCase(
-        signUpUseCaseImpl: SignUpUseCaseImpl
-    ): SignUpUseCase
-
-    @Binds
-    fun bindsSetNumberOfPlacesUseCase(
-        setNumberOfPlacesUseCaseImpl: SetNumberOfPlacesUseCaseImpl
-    ): SetNumberOfPlacesUseCase
-
-    @Binds
-    fun bindsGetNumberOfPlacesUseCase(
-        getNumberOfPlacesUseCaseImpl: GetNumberOfPlacesUseCaseImpl
-    ): GetNumberOfPlacesUseCase
+    fun bindsUserSettingsRepository(
+        userSettingsRepositoryImpl: UserSettingsRepositoryImpl
+    ): UserSettingsRepository
 }

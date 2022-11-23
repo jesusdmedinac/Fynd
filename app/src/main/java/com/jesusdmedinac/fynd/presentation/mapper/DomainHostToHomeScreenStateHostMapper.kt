@@ -6,6 +6,12 @@ import javax.inject.Inject
 
 class DomainHostToHomeScreenStateHostMapper @Inject constructor() {
     fun map(input: Host): HomeScreenViewModel.State.Host = with(input) {
-        HomeScreenViewModel.State.Host(email, displayName, qrCode, isLeader)
+        HomeScreenViewModel.State.Host(
+            email,
+            displayName,
+            qrCode,
+            isLeader,
+            isOnboardingWelcomeScreenViewed,
+        )
     }
 }

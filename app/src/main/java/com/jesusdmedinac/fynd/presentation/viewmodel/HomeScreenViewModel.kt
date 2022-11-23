@@ -74,6 +74,7 @@ class HomeScreenViewModel @Inject constructor(
             val displayName: String,
             val qrCode: String,
             val isLeader: Boolean,
+            val isOnboardingWelcomeScreenViewed: Boolean,
         )
     }
 

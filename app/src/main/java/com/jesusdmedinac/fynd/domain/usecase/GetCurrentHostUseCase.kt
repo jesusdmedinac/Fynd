@@ -4,13 +4,9 @@ import com.jesusdmedinac.fynd.domain.model.Host
 import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import javax.inject.Inject
 
-interface GetCurrentHostUseCase {
-    suspend operator fun invoke(): Host
-}
-
-class GetCurrentHostUseCaseImpl @Inject constructor(
+class GetCurrentHostUseCase @Inject constructor(
     private val hostRepository: HostRepository
-) : GetCurrentHostUseCase {
-    override suspend fun invoke(): Host = hostRepository.getCurrentHost()
+) {
+    suspend operator fun invoke(): Host = hostRepository.getCurrentHost()
         ?: throw Throwable("Current host is not available")
 }

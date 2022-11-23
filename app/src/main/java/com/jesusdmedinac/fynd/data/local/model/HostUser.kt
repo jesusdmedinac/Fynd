@@ -14,4 +14,5 @@ data class HostUser(
     val qrCode: String,
     val isLoggedIn: Boolean,
     val isLeader: Boolean,
+    val isOnboardingWelcomeScreenViewed: Boolean,
 )

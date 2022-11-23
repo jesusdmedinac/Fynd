@@ -4,9 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
-import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToMainScreenStateHostMapper
+import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToOnboardingMainScreenStateHostMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
@@ -17,13 +16,13 @@ import org.orbitmvi.orbit.syntax.simple.reduce
 import javax.inject.Inject
 
 @HiltViewModel
-class MainScreenViewModel @Inject constructor(
+class OnboardingHostScreenViewModel @Inject constructor(
     private val getCurrentHostUseCase: GetCurrentHostUseCase,
-    private val domainHostToMainScreenStateHostMapper: DomainHostToMainScreenStateHostMapper,
+    private val domainHostToOnboardingMainScreenStateHostMapper: DomainHostToOnboardingMainScreenStateHostMapper,
 ) :
     ViewModel(),
-    MainScreenBehavior,
-    ContainerHost<MainScreenViewModel.State, MainScreenViewModel.SideEffect> {
+    OnboardingMainScreenBehavior,
+    ContainerHost<OnboardingHostScreenViewModel.State, OnboardingHostScreenViewModel.SideEffect> {
     override val container: Container<State, SideEffect> =
         viewModelScope.container(State())
 
@@ -32,38 +31,23 @@ class MainScreenViewModel @Inject constructor(
             runCatching { getCurrentHostUseCase() }
                 .onFailure { Log.e("dani", it.message.toString()) }
                 .onSuccess { host ->
-                    val stateHost = domainHostToMainScreenStateHostMapper.map(host)
+                    val stateHost = domainHostToOnboardingMainScreenStateHostMapper.map(host)
                     onSessionStateChange(State.Session.HostIsLoggedIn(stateHost))
                 }
         }
     }
 
     private suspend fun SimpleSyntax<State, SideEffect>.onSessionStateChange(uiSession: State.Session) {
-        when (uiSession) {
+        postSideEffect(SideEffect.Idle)
+        return when (uiSession) {
             State.Session.HostIsNotLoggedIn -> {
-                postSideEffect(SideEffect.Idle)
                 reduce { state.copy(session = State.Session.HostIsNotLoggedIn) }
             }
             is State.Session.HostIsLoggedIn -> {
-                postSideEffect(SideEffect.NavigateToOnboardingScreen)
                 reduce {
                     state.copy(session = State.Session.HostIsLoggedIn(uiSession.host))
                 }
             }
-        }
-    }
-
-    override fun goToSignInScreen() {
-        intent {
-            delay(100)
-            postSideEffect(SideEffect.NavigateToSignInScreen)
-        }
-    }
-
-    override fun goToSignUpScreen() {
-        intent {
-            delay(100)
-            postSideEffect(SideEffect.NavigateToSignUpScreen)
         }
     }
 
@@ -88,14 +72,9 @@ class MainScreenViewModel @Inject constructor(
 
     sealed class SideEffect {
         object Idle : SideEffect()
-        object NavigateToOnboardingScreen : SideEffect()
-        object NavigateToSignInScreen : SideEffect()
-        object NavigateToSignUpScreen : SideEffect()
     }
 }
 
-interface MainScreenBehavior {
+interface OnboardingMainScreenBehavior {
     fun getCurrentSession()
-    fun goToSignInScreen()
-    fun goToSignUpScreen()
 }

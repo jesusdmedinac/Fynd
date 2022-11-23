@@ -8,16 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
-import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.OnboardingHostScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable
 fun OnboardingMainScreen(
-    session: MainScreenViewModel.State.Session,
+    session: OnboardingHostScreenViewModel.State.Session,
     onStartClick: () -> Unit,
 ) {
     val displayName = when (session) {
-        is MainScreenViewModel.State.Session.HostIsLoggedIn -> session.host.displayName
+        is OnboardingHostScreenViewModel.State.Session.HostIsLoggedIn -> session.host.displayName
         else -> "Anónimo"
     }
     Scaffold { paddingValues ->
@@ -54,7 +54,7 @@ fun OnboardingMainScreen(
 fun OnboardingMainScreenPreview() {
     FyndTheme {
         OnboardingMainScreen(
-            session = MainScreenViewModel.State.Session.HostIsNotLoggedIn,
+            session = OnboardingHostScreenViewModel.State.Session.HostIsNotLoggedIn,
         ) {}
     }
 }

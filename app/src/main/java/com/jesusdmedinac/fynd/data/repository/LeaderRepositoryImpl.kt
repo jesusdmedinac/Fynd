@@ -47,6 +47,7 @@ class LeaderRepositoryImpl @Inject constructor(
                 qrCode,
                 isLoggedIn,
                 isLeader,
+                isOnboardingWelcomeScreenViewed,
             )
         )
     } ?: run { Session.HostIsNotLoggedIn }

@@ -7,13 +7,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.jesusdmedinac.fynd.domain.model.*
+import com.jesusdmedinac.fynd.domain.repository.HostRepository
+import com.jesusdmedinac.fynd.domain.repository.LeaderRepository
+import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
 import com.jesusdmedinac.fynd.domain.usecase.JoinByLeaderCodeUseCase
 import com.jesusdmedinac.fynd.domain.usecase.RetrieveCurrentSessionUseCase
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
 import com.jesusdmedinac.fynd.presentation.ui.screen.*
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.*
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 
 @ExperimentalMaterial3Api
 @Composable
@@ -27,6 +31,7 @@ fun FyndApp(
     val authSignInViewModel: AuthSignInViewModel = hiltViewModel()
     val authSignUpViewModel: AuthSignUpViewModel = hiltViewModel()
     val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
+    val onboardingHostScreenViewModel: OnboardingHostScreenViewModel = hiltViewModel()
 
     val navController = rememberNavController()
     var authStartDestination by remember { mutableStateOf(NavItem.AuthScreen.SignInScreen.baseRoute) }
@@ -55,7 +60,7 @@ fun FyndApp(
             LaunchedEffect(mainScreenSideEffect) {
                 when (mainScreenSideEffect) {
                     MainScreenViewModel.SideEffect.NavigateToOnboardingScreen -> {
-                        navController.navigate(NavItem.OnboardingMainScreen.Host.baseRoute)
+                        navController.navigate(NavItem.OnboardingHostScreen.Host.baseRoute)
                     }
                     MainScreenViewModel.SideEffect.NavigateToSignInScreen -> {
                         authStartDestination = NavItem.AuthScreen.SignInScreen.baseRoute
@@ -89,11 +94,15 @@ fun FyndApp(
             )
         }
 
-        composable(NavItem.OnboardingMainScreen.Host.baseRoute) {
-            val mainScreenState by mainScreenViewModel.container.stateFlow.collectAsState()
-            OnboardingScreen(
-                mainScreenState,
-                mainScreenViewModel,
+        composable(NavItem.OnboardingHostScreen.Host.baseRoute) {
+            val onboardingMainScreenState by onboardingHostScreenViewModel.container.stateFlow.collectAsState()
+
+            LaunchedEffect(Unit) {
+                mainScreenViewModel.getCurrentSession()
+            }
+
+            OnboardingHostScreen(
+                onboardingMainScreenState,
                 qrScreenViewModel,
                 onNavigateToPlacesScreenClick = {
                     navController.navigate(NavItem.HomeNavItem.Host.baseRoute)
@@ -117,7 +126,7 @@ fun FyndApp(
                 },
                 onUserLoggedIn = {
                     mainActivityViewModel.retrieveCurrentSession()
-                    navController.navigate(NavItem.OnboardingMainScreen.Host.baseRoute)
+                    navController.navigate(NavItem.OnboardingHostScreen.Host.baseRoute)
                 },
             )
         }
@@ -139,20 +148,49 @@ fun FyndApp(
 @Composable
 @Preview
 fun FyndAppPreview() {
+    val hostRepository = object : HostRepository {
+        override suspend fun retrieveCurrentSession(email: String) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getCurrentSession(): Flow<Session> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getCurrentHost(): Host? {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun signUp(signUpUserCredentials: SignUpUserCredentials): SignUpResult {
+            TODO("Not yet implemented")
+        }
+    }
     FyndTheme {
         FyndApp(
             launchScanner = {},
             mainActivityViewModel = MainActivityViewModel(
-                joinByLeaderCodeUseCase = object : JoinByLeaderCodeUseCase {
-                    override suspend fun invoke(leaderCode: String) {
-                        TODO("Not yet implemented")
-                    }
-                },
-                retrieveCurrentSessionUseCase = object : RetrieveCurrentSessionUseCase {
-                    override suspend fun invoke(viewModelScope: CoroutineScope) {
-                        TODO("Not yet implemented")
-                    }
-                }
+                joinByLeaderCodeUseCase = JoinByLeaderCodeUseCase(
+                    leaderRepository = object : LeaderRepository {
+                        override suspend fun joinBy(leaderCode: String, hostCode: String) {
+                            TODO("Not yet implemented")
+                        }
+
+                        override suspend fun getCurrentLeader(): Host? {
+                            TODO("Not yet implemented")
+                        }
+                    },
+                    hostRepository = hostRepository
+                ),
+                retrieveCurrentSessionUseCase = RetrieveCurrentSessionUseCase(
+                    hostRepository = hostRepository,
+                    getCurrentHostUseCase = GetCurrentHostUseCase(
+                        hostRepository = hostRepository
+                    )
+                ),
             ),
         )
     }

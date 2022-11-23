@@ -26,4 +26,10 @@ interface HostDao {
 
     @Query("SELECT * FROM hosts WHERE isLeader = 1")
     fun leaderHostUser(): HostUser?
+
+    @Query("SELECT isOnboardingWelcomeScreenViewed FROM hosts WHERE isLoggedIn = 1")
+    fun isOnboardingWelcomeScreenViewed(): Boolean
+
+    @Query("UPDATE hosts SET isOnboardingWelcomeScreenViewed = :isOnboardingWelcomeScreenViewed WHERE isLoggedIn = 1")
+    fun setIsOnboardingWelcomeScreenViewed(isOnboardingWelcomeScreenViewed: Boolean)
 }

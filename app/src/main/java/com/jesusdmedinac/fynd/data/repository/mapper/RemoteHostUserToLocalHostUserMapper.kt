@@ -13,6 +13,7 @@ class RemoteHostUserToLocalHostUserMapper @Inject constructor() {
             qrCode,
             isLoggedIn,
             isLeader,
+            isOnboardingWelcomeScreenViewed = false,
         )
     }
 }

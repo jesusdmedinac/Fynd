@@ -9,16 +9,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jesusdmedinac.fynd.domain.model.SignInResult
-import com.jesusdmedinac.fynd.domain.model.SignInUserCredentials
-import com.jesusdmedinac.fynd.domain.model.SignUpResult
-import com.jesusdmedinac.fynd.domain.model.SignUpUserCredentials
+import com.jesusdmedinac.fynd.domain.model.*
+import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import com.jesusdmedinac.fynd.domain.usecase.SignInUseCase
 import com.jesusdmedinac.fynd.domain.usecase.SignUpUseCase
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.AuthSignInViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.AuthSignUpViewModel
+import kotlinx.coroutines.flow.Flow
 
 @ExperimentalMaterial3Api
 @Composable
@@ -88,21 +87,38 @@ fun AuthScreen(
 @Composable
 @Preview
 fun AuthScreenPreview() {
+    val hostRepository = object : HostRepository {
+        override suspend fun retrieveCurrentSession(email: String) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getCurrentSession(): Flow<Session> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getCurrentHost(): Host? {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun signUp(signUpUserCredentials: SignUpUserCredentials): SignUpResult {
+            TODO("Not yet implemented")
+        }
+    }
     FyndTheme {
         AuthScreen(
             authSignInViewModel = AuthSignInViewModel(
-                signInUseCase = object : SignInUseCase {
-                    override suspend fun invoke(signInUserCredentials: SignInUserCredentials): SignInResult {
-                        TODO("Not yet implemented")
-                    }
-                }
+                signInUseCase = SignInUseCase(
+                    hostRepository = hostRepository
+                )
             ),
             authSignUpViewModel = AuthSignUpViewModel(
-                signUpUseCase = object : SignUpUseCase {
-                    override suspend fun invoke(signUpUserCredentials: SignUpUserCredentials): SignUpResult {
-                        TODO("Not yet implemented")
-                    }
-                }
+                signUpUseCase = SignUpUseCase(
+                    hostRepository = hostRepository
+                )
             ),
             startDestination = "",
             onWantToSignInClick = {},

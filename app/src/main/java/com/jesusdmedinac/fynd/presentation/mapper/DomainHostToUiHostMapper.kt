@@ -11,6 +11,7 @@ class DomainHostToUiHostMapper @Inject constructor() {
             displayName,
             qrCode,
             isLeader,
+            isOnboardingWelcomeScreenViewed,
         )
     }
 }

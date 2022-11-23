@@ -92,6 +92,7 @@ class HostRepositoryImpl @Inject constructor(
         qrCode,
         isLoggedIn,
         isLeader,
+        isOnboardingWelcomeScreenViewed = false,
     )
 
     private fun LocalHostUser?.toSession(): Session = this?.run {
@@ -103,6 +104,7 @@ class HostRepositoryImpl @Inject constructor(
                 qrCode,
                 isLoggedIn,
                 isLeader,
+                isOnboardingWelcomeScreenViewed
             )
         )
     } ?: run { Session.HostIsNotLoggedIn }

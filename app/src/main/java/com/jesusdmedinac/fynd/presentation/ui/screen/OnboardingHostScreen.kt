@@ -11,38 +11,36 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
-import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenBehavior
-import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel
-import com.jesusdmedinac.fynd.presentation.viewmodel.QRScreenViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.*
 
 @ExperimentalMaterial3Api
 @Composable
-fun OnboardingScreen(
-    mainScreenState: MainScreenViewModel.State = MainScreenViewModel.State(),
-    mainScreenBehavior: MainScreenBehavior,
+fun OnboardingHostScreen(
+    onboardingMainScreenState: OnboardingHostScreenViewModel.State = OnboardingHostScreenViewModel.State(),
     qrScreenViewModel: QRScreenViewModel,
     onNavigateToPlacesScreenClick: () -> Unit,
     onNavigateToScanCodeScreenClick: () -> Unit,
 ) {
     val navController = rememberNavController()
-
-    LaunchedEffect(Unit) {
-        mainScreenBehavior.getCurrentSession()
+    val session = onboardingMainScreenState.session
+    val startDestination = when (session) {
+        is OnboardingHostScreenViewModel.State.Session.HostIsLoggedIn -> NavItem.OnboardingHostScreen.Main
+        OnboardingHostScreenViewModel.State.Session.HostIsNotLoggedIn -> NavItem.OnboardingHostScreen.QRScreen
     }
-
     NavHost(
         navController = navController,
-        startDestination = NavItem.OnboardingMainScreen.Main.baseRoute
+        startDestination = startDestination.baseRoute
     ) {
-        composable(NavItem.OnboardingMainScreen.Main.baseRoute) {
+        composable(NavItem.OnboardingHostScreen.Main.baseRoute) {
             OnboardingMainScreen(
-                mainScreenState.session
-            ) {
-                navController.navigate(NavItem.OnboardingMainScreen.QRScreen.baseRoute)
-            }
+                session,
+                onStartClick = {
+                    navController.navigate(NavItem.OnboardingHostScreen.QRScreen.baseRoute)
+                },
+            )
         }
 
-        composable(NavItem.OnboardingMainScreen.QRScreen.baseRoute) {
+        composable(NavItem.OnboardingHostScreen.QRScreen.baseRoute) {
             val qrScreenState by qrScreenViewModel
                 .container
                 .stateFlow
@@ -61,7 +59,7 @@ fun OnboardingScreen(
             }
 
             QRScreen(
-                mainScreenState.session,
+                session,
                 qrScreenState,
                 qrScreenViewModel,
             )
@@ -74,21 +72,8 @@ fun OnboardingScreen(
 @Preview
 fun OnboardingScreenPreview() {
     FyndTheme {
-        OnboardingScreen(
-            mainScreenState = MainScreenViewModel.State(),
-            mainScreenBehavior = object : MainScreenBehavior {
-                override fun getCurrentSession() {
-                    TODO("Not yet implemented")
-                }
-
-                override fun goToSignInScreen() {
-                    TODO("Not yet implemented")
-                }
-
-                override fun goToSignUpScreen() {
-                    TODO("Not yet implemented")
-                }
-            },
+        OnboardingHostScreen(
+            onboardingMainScreenState = OnboardingHostScreenViewModel.State(),
             qrScreenViewModel = QRScreenViewModel(),
             onNavigateToPlacesScreenClick = {},
             onNavigateToScanCodeScreenClick = {},
