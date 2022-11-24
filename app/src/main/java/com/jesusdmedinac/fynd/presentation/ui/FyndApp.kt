@@ -84,20 +84,6 @@ fun FyndApp(
             )
         }
 
-        composable(NavItem.PlacesNavItem.baseRoute) {
-            val placesScreenState by placesScreenViewModel.container.stateFlow.collectAsState()
-            val placesScreenSideEffect by placesScreenViewModel
-                .container
-                .sideEffectFlow
-                .collectAsState(initial = PlacesScreenViewModel.SideEffect.Idle)
-
-            PlacesScreen(
-                placesScreenState,
-                placesScreenSideEffect,
-                placesScreenViewModel,
-            )
-        }
-
         composable(NavItem.OnboardingHostScreen.Host.baseRoute) {
             OnboardingHostScreen(
                 onboardingHostScreenViewModel,
@@ -132,10 +118,11 @@ fun FyndApp(
             val homeState by homeScreenViewModel.container.stateFlow.collectAsState()
             val homeSideEffect by homeScreenViewModel.container.sideEffectFlow.collectAsState(initial = HomeScreenViewModel.SideEffect.Idle)
 
-            HomeScreen(
+            HomeHostScreen(
                 homeState,
                 homeSideEffect,
-                homeScreenViewModel
+                homeScreenViewModel,
+                placesScreenViewModel,
             )
         }
     }

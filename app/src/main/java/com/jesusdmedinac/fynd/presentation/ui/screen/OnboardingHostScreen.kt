@@ -1,6 +1,5 @@
 package com.jesusdmedinac.fynd.presentation.ui.screen
 
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +18,8 @@ import com.jesusdmedinac.fynd.domain.usecase.IsHostALeaderUseCase
 import com.jesusdmedinac.fynd.domain.usecase.SetOnboardingWelcomeScreenViewedUseCase
 import com.jesusdmedinac.fynd.presentation.mapper.DomainHostToOnboardingMainScreenStateHostMapper
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
+import com.jesusdmedinac.fynd.presentation.ui.screen.onboardingscreen.OnboardingMainScreen
+import com.jesusdmedinac.fynd.presentation.ui.screen.onboardingscreen.QRScreen
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.*
 import kotlinx.coroutines.flow.Flow

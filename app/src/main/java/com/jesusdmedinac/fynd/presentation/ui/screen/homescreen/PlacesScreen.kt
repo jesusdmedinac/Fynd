@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.presentation.ui.screen
+package com.jesusdmedinac.fynd.presentation.ui.screen.homescreen
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke

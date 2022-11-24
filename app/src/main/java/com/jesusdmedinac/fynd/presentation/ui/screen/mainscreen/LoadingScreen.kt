@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.presentation.ui.screen
+package com.jesusdmedinac.fynd.presentation.ui.screen.mainscreen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

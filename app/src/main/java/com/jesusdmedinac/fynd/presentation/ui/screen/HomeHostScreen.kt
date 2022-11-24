@@ -14,23 +14,27 @@ import androidx.navigation.compose.rememberNavController
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
 import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.AreaScreen
 import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.EntryScreen
-import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.TotalScreen
+import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.PlacesScreen
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.EntryBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.HomeScreenViewModel
+import com.jesusdmedinac.fynd.presentation.viewmodel.PlacesScreenViewModel
 
 @ExperimentalMaterial3Api
 @Composable
-fun HomeScreen(
+fun HomeHostScreen(
     homeState: HomeScreenViewModel.State,
     homeSideEffect: HomeScreenViewModel.SideEffect,
     entryBehavior: EntryBehavior,
+    placesScreenViewModel: PlacesScreenViewModel,
 ) {
     val numberOfPlaces = homeState.numberOfPlaces
     val selectedTab = homeState.selectedTab
     val session = homeState.session
 
-    entryBehavior.getCurrentSession()
+    LaunchedEffect(Unit) {
+        entryBehavior.onScreenLoad()
+    }
 
     Scaffold(bottomBar = {
         NavigationBar {
@@ -43,8 +47,8 @@ fun HomeScreen(
                             )
                         },
                         label = { Text("Entrada") },
-                        selected = selectedTab == 0,
-                        onClick = { entryBehavior.onTabSelected(0) },
+                        selected = selectedTab == HomeScreenViewModel.State.HomeTabs.EntryTab,
+                        onClick = { entryBehavior.onTabSelected(HomeScreenViewModel.State.HomeTabs.EntryTab) },
                     )
                 }
                 else -> Unit
@@ -55,17 +59,44 @@ fun HomeScreen(
                         Icons.Filled.Square, contentDescription = null
                     )
                 },
+                label = { Text("Area") },
+                selected = selectedTab == HomeScreenViewModel.State.HomeTabs.AreaTab,
+                onClick = { entryBehavior.onTabSelected(HomeScreenViewModel.State.HomeTabs.AreaTab) },
+            )
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        Icons.Filled.BlurOn, contentDescription = null
+                    )
+                },
                 label = { Text("Zona") },
-                selected = selectedTab == 1,
-                onClick = { entryBehavior.onTabSelected(1) },
+                selected = selectedTab == HomeScreenViewModel.State.HomeTabs.TotalTab,
+                onClick = { entryBehavior.onTabSelected(HomeScreenViewModel.State.HomeTabs.TotalTab) },
             )
         }
     }) { paddingValues ->
         val navController = rememberNavController()
         val startDestination = when {
-            session is HomeScreenViewModel.State.Session.HostIsLoggedIn && session.host.isLeader -> NavItem.HomeNavItem.Entry.baseRoute
+            session is HomeScreenViewModel.State.Session.HostIsLoggedIn
+                    && session.host.isLeader -> NavItem.HomeNavItem.Entry.baseRoute
             else -> NavItem.HomeNavItem.Area.baseRoute
         }
+
+        LaunchedEffect(homeSideEffect) {
+            when (homeSideEffect) {
+                HomeScreenViewModel.SideEffect.NavigateToEntryScreen -> {
+                    navController.navigate(NavItem.HomeNavItem.Entry.baseRoute)
+                }
+                HomeScreenViewModel.SideEffect.NavigateToAreaScreen -> {
+                    navController.navigate(NavItem.HomeNavItem.Area.baseRoute)
+                }
+                HomeScreenViewModel.SideEffect.NavigateToTotalScreen -> {
+                    navController.navigate(NavItem.HomeNavItem.Total.baseRoute)
+                }
+                HomeScreenViewModel.SideEffect.Idle -> Unit
+            }
+        }
+
         NavHost(
             navController,
             modifier = Modifier
@@ -78,14 +109,26 @@ fun HomeScreen(
                     onNumberClick = entryBehavior::onNumberClick
                 )
             }
+
             composable(NavItem.HomeNavItem.Area.baseRoute) {
                 entryBehavior.retrieveNextPlacesNumber()
                 AreaScreen(
                     numberOfPlaces = numberOfPlaces
                 )
             }
+
             composable(NavItem.HomeNavItem.Total.baseRoute) {
-                TotalScreen()
+                val placesScreenState by placesScreenViewModel.container.stateFlow.collectAsState()
+                val placesScreenSideEffect by placesScreenViewModel
+                    .container
+                    .sideEffectFlow
+                    .collectAsState(initial = PlacesScreenViewModel.SideEffect.Idle)
+
+                PlacesScreen(
+                    placesScreenState,
+                    placesScreenSideEffect,
+                    placesScreenViewModel,
+                )
             }
         }
     }
@@ -96,11 +139,11 @@ fun HomeScreen(
 @Preview
 fun HomeScreenPreview() {
     FyndTheme {
-        HomeScreen(
+        HomeHostScreen(
             homeState = HomeScreenViewModel.State(),
             homeSideEffect = HomeScreenViewModel.SideEffect.Idle,
             entryBehavior = object : EntryBehavior {
-                override fun getCurrentSession() {
+                override fun onScreenLoad() {
                     TODO("Not yet implemented")
                 }
 
@@ -108,13 +151,15 @@ fun HomeScreenPreview() {
                     TODO("Not yet implemented")
                 }
 
-                override fun onTabSelected(tab: Int) {
+                override fun onTabSelected(selectedTab: HomeScreenViewModel.State.HomeTabs) {
                     TODO("Not yet implemented")
                 }
 
                 override fun retrieveNextPlacesNumber() {
                     TODO("Not yet implemented")
                 }
-            })
+            },
+            placesScreenViewModel = PlacesScreenViewModel()
+        )
     }
 }

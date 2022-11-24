@@ -32,7 +32,7 @@ class HomeScreenViewModel @Inject constructor(
     override val container: Container<State, SideEffect> =
         viewModelScope.container(State())
 
-    override fun getCurrentSession() {
+    override fun onScreenLoad() {
         intent {
             runCatching { getCurrentHostUseCase() }
                 .onFailure { Log.e("dani", it.message.toString()) }
@@ -57,31 +57,6 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    data class State(
-        val numberOfPlaces: Int = 0,
-        val selectedTab: Int = 0,
-        val session: Session = Session.HostIsNotLoggedIn,
-    ) {
-        sealed class Session {
-            object HostIsNotLoggedIn : Session()
-            data class HostIsLoggedIn(
-                val host: Host,
-            ) : Session()
-        }
-
-        data class Host(
-            val email: String,
-            val displayName: String,
-            val qrCode: String,
-            val isLeader: Boolean,
-            val isOnboardingWelcomeScreenViewed: Boolean,
-        )
-    }
-
-    sealed class SideEffect {
-        object Idle : SideEffect()
-    }
-
     override fun onNumberClick(number: Int) {
         intent {
             runCatching { getLeaderUseCase() }
@@ -93,9 +68,15 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    override fun onTabSelected(selectedTab: Int) {
+    override fun onTabSelected(selectedTab: State.HomeTabs) {
         intent {
             reduce { state.copy(selectedTab = selectedTab) }
+            val sideEffect = when (selectedTab) {
+                State.HomeTabs.AreaTab -> SideEffect.NavigateToAreaScreen
+                State.HomeTabs.EntryTab -> SideEffect.NavigateToEntryScreen
+                State.HomeTabs.TotalTab -> SideEffect.NavigateToTotalScreen
+            }
+            postSideEffect(sideEffect)
         }
     }
 
@@ -112,11 +93,45 @@ class HomeScreenViewModel @Inject constructor(
                 .onFailure { println(it) }
         }
     }
+
+    data class State(
+        val numberOfPlaces: Int = 0,
+        val selectedTab: HomeTabs = HomeTabs.EntryTab,
+        val session: Session = Session.HostIsNotLoggedIn,
+    ) {
+        sealed class Session {
+            object HostIsNotLoggedIn : Session()
+            data class HostIsLoggedIn(
+                val host: Host,
+            ) : Session()
+        }
+
+        data class Host(
+            val email: String,
+            val displayName: String,
+            val qrCode: String,
+            val isLeader: Boolean,
+            val isOnboardingWelcomeScreenViewed: Boolean,
+        )
+
+        sealed class HomeTabs {
+            object EntryTab : HomeTabs()
+            object AreaTab : HomeTabs()
+            object TotalTab : HomeTabs()
+        }
+    }
+
+    sealed class SideEffect {
+        object Idle : SideEffect()
+        object NavigateToEntryScreen : SideEffect()
+        object NavigateToAreaScreen : SideEffect()
+        object NavigateToTotalScreen : SideEffect()
+    }
 }
 
 interface EntryBehavior {
-    fun getCurrentSession()
+    fun onScreenLoad()
     fun onNumberClick(number: Int)
-    fun onTabSelected(selectedTab: Int)
+    fun onTabSelected(selectedTab: HomeScreenViewModel.State.HomeTabs)
     fun retrieveNextPlacesNumber()
 }

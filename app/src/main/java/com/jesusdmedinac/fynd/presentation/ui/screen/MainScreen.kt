@@ -4,6 +4,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.Preview
+import com.jesusdmedinac.fynd.presentation.ui.screen.mainscreen.LoadingScreen
+import com.jesusdmedinac.fynd.presentation.ui.screen.mainscreen.WelcomeScreen
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.MainScreenViewModel

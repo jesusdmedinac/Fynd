@@ -14,6 +14,8 @@ import com.jesusdmedinac.fynd.domain.repository.HostRepository
 import com.jesusdmedinac.fynd.domain.usecase.SignInUseCase
 import com.jesusdmedinac.fynd.domain.usecase.SignUpUseCase
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
+import com.jesusdmedinac.fynd.presentation.ui.screen.authscreen.AuthSignInScreen
+import com.jesusdmedinac.fynd.presentation.ui.screen.authscreen.AuthSignUpScreen
 import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.AuthSignInViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.AuthSignUpViewModel

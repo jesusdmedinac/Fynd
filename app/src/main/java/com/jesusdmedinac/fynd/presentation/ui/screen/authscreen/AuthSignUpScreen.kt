@@ -1,4 +1,4 @@
-package com.jesusdmedinac.fynd.presentation.ui.screen
+package com.jesusdmedinac.fynd.presentation.ui.screen.authscreen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
