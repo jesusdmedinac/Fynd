@@ -14,6 +14,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
@@ -29,12 +30,11 @@ import javax.inject.Inject
 class PlacesScreenViewModel @Inject constructor(
     private val updatePlacesByLeaderEmailUseCase: UpdatePlacesByLeaderEmailUseCase,
     private val uiPlaceToDomainPlaceMapper: UiPlaceToDomainPlaceMapper,
-    private val retrievePlacesByLeaderEmailUseCase: RetrievePlacesByLeaderEmailUseCase,
     private val getPlacesByLeaderEmailUseCase: GetPlacesByLeaderEmailUseCase,
     private val domainPlaceToUiPlaceMapper: DomainPlaceToUiPlaceMapper,
     private val updateColumnsByLeaderEmailUseCase: UpdateColumnsByLeaderEmailUseCase,
     private val updateRowsByLeaderEmailUseCase: UpdateRowsByLeaderEmailUseCase,
-    private val getCurrentHostUseCase: GetCurrentHostUseCase,
+    private val getUpdatedHostUseCase: GetUpdatedHostUseCase,
 ) : ViewModel(), PlacesScreenBehavior,
     ContainerHost<PlacesScreenViewModel.State, PlacesScreenViewModel.SideEffect> {
     override val container: Container<State, SideEffect> = viewModelScope.container(State())
@@ -92,17 +92,10 @@ class PlacesScreenViewModel @Inject constructor(
         object RowsLimitReached : SideEffect()
     }
 
-    lateinit var retrievePlacesByLeaderEmailUseCaseDeferred: Deferred<Result<Unit>>
     lateinit var getPlacesByLeaderEmailUseCaseDeferred: Deferred<Result<Flow<List<Place>>>>
-    lateinit var getCurrentHostUseCaseDeferred: Deferred<Result<Host>>
+    lateinit var getCurrentHostUseCaseDeferred: Deferred<Unit>
 
     override fun onScreenLoad() {
-        if (!::retrievePlacesByLeaderEmailUseCaseDeferred.isInitialized) {
-            retrievePlacesByLeaderEmailUseCaseDeferred = viewModelScope.async {
-                retrievePlacesByLeaderEmailUseCase()
-                    .onFailure { Log.e("dani", it.message.toString()) }
-            }
-        }
         if (!::getPlacesByLeaderEmailUseCaseDeferred.isInitialized) {
             getPlacesByLeaderEmailUseCaseDeferred = viewModelScope.async {
                 getPlacesByLeaderEmailUseCase()
@@ -122,17 +115,19 @@ class PlacesScreenViewModel @Inject constructor(
         }
         if (!::getCurrentHostUseCaseDeferred.isInitialized) {
             getCurrentHostUseCaseDeferred = viewModelScope.async {
-                getCurrentHostUseCase()
-                    .onFailure { Log.d("dani", it.message.toString()) }
-                    .onSuccess { host ->
-                        onColumnsValueChange(host.columnsOfPlaces)
-                        onRowsValueChange(host.rowsOfPlaces)
+                getUpdatedHostUseCase()
+                    .collect { result ->
+                        result
+                            .onFailure { Log.d("dani", it.message.toString()) }
+                            .onSuccess { host ->
+                                onColumnsValueChange(host.columnsOfPlaces)
+                                onRowsValueChange(host.rowsOfPlaces)
+                            }
                     }
             }
         }
         intent {
             getPlacesByLeaderEmailUseCaseDeferred.await()
-            retrievePlacesByLeaderEmailUseCaseDeferred.await()
             getCurrentHostUseCaseDeferred.await()
         }
     }

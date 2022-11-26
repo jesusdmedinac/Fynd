@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface HostRepository {
     suspend fun retrieveCurrentSession(email: String)
-    suspend fun getCurrentSession(): Flow<Session>
+    suspend fun getCurrentHostFlow(): Flow<Result<Host>>
     suspend fun getCurrentHost(): Result<Host>
     suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult
     suspend fun signUp(signUpUserCredentials: SignUpUserCredentials): SignUpResult

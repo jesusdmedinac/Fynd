@@ -39,9 +39,15 @@ class HostRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun getCurrentSession(): Flow<Session> = hostDao.loggedHostUserFlow()
-        .flowOn(ioDispatcher)
-        .map { it.toSession() }
+    override suspend fun getCurrentHostFlow(): Flow<Result<Host>> = withContext(ioDispatcher) {
+        hostDao.loggedHostUserFlow()
+            .map { loggedHostUser ->
+                loggedHostUser ?: return@map Result.failure(Throwable("Current host is not available"))
+                val loggedHost = loggedHostUser.toSession() as? Session.LoggedHost
+                    ?: return@map Result.failure(Throwable("Current host is not available"))
+                Result.success(loggedHost.host)
+            }
+    }
 
     override suspend fun getCurrentHost(): Result<Host> = withContext(ioDispatcher) {
         val loggedHostUser = hostDao.loggedHostUser()

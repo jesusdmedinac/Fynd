@@ -22,7 +22,7 @@ interface HostDao {
     fun isLeader(email: String): Boolean
 
     @Query("SELECT * FROM hosts WHERE isLoggedIn = 1")
-    fun loggedHostUserFlow(): Flow<HostUser>
+    fun loggedHostUserFlow(): Flow<HostUser?>
 
     @Query("SELECT * FROM hosts WHERE isLoggedIn = 1")
     fun loggedHostUser(): HostUser?

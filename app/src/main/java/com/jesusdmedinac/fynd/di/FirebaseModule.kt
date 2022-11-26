@@ -11,7 +11,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.jesusdmedinac.fynd.data.local.FyndDataBase
 import com.jesusdmedinac.fynd.data.local.HostDao
-import com.jesusdmedinac.fynd.data.local.PlaceDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,9 +35,6 @@ object FirebaseModule {
 
     @Provides
     fun providesHostDao(fyndDataBase: FyndDataBase): HostDao = fyndDataBase.hostDao()
-
-    @Provides
-    fun providesPlaceDao(fyndDataBase: FyndDataBase): PlaceDao = fyndDataBase.placeDao()
 
     @Provides
     @Named("sha256")

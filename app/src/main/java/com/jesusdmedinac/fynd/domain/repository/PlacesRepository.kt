@@ -8,5 +8,4 @@ interface PlacesRepository {
     suspend fun getNumberOfPlacesOf(leaderEmail: String): Flow<Int>
     suspend fun getPlacesBy(leaderEmail: String): Flow<List<Place>>
     suspend fun updatePlacesBy(leaderEmail: String, places: List<Place>): Result<Unit>
-    suspend fun retrievePlacesBy(leaderEmail: String)
 }
