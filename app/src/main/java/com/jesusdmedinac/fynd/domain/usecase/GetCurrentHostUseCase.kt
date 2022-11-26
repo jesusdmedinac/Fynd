@@ -7,6 +7,5 @@ import javax.inject.Inject
 class GetCurrentHostUseCase @Inject constructor(
     private val hostRepository: HostRepository
 ) {
-    suspend operator fun invoke(): Host = hostRepository.getCurrentHost()
-        ?: throw Throwable("Current host is not available")
+    suspend operator fun invoke(): Result<Host> = hostRepository.getCurrentHost()
 }

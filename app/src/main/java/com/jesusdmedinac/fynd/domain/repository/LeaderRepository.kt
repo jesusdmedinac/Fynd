@@ -6,7 +6,7 @@ interface LeaderRepository {
     suspend fun joinBy(
         leaderCode: String,
         hostCode: String,
-    )
+    ): Result<Unit>
     suspend fun getCurrentLeader(): Host?
     suspend fun isLeader(email: String): Boolean
 }

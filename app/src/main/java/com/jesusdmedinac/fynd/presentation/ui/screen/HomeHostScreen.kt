@@ -1,5 +1,6 @@
 package com.jesusdmedinac.fynd.presentation.ui.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.jesusdmedinac.fynd.domain.model.*
+import com.jesusdmedinac.fynd.domain.repository.HostRepository
+import com.jesusdmedinac.fynd.domain.repository.PlacesRepository
+import com.jesusdmedinac.fynd.domain.usecase.GetCurrentHostUseCase
+import com.jesusdmedinac.fynd.domain.usecase.GetPlacesByLeaderEmailUseCase
+import com.jesusdmedinac.fynd.domain.usecase.UpdatePlacesByLeaderEmailUseCase
+import com.jesusdmedinac.fynd.presentation.mapper.DomainPlaceToUiPlaceMapper
+import com.jesusdmedinac.fynd.presentation.mapper.UiPlaceToDomainPlaceMapper
 import com.jesusdmedinac.fynd.presentation.ui.navigation.NavItem
 import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.AreaScreen
 import com.jesusdmedinac.fynd.presentation.ui.screen.homescreen.EntryScreen
@@ -19,7 +28,9 @@ import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.EntryBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.HomeScreenViewModel
 import com.jesusdmedinac.fynd.presentation.viewmodel.PlacesScreenViewModel
+import kotlinx.coroutines.flow.Flow
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Composable
 fun HomeHostScreen(
@@ -111,14 +122,19 @@ fun HomeHostScreen(
             }
 
             composable(NavItem.HomeNavItem.Area.baseRoute) {
-                entryBehavior.retrieveNextPlacesNumber()
+                LaunchedEffect(Unit) {
+                    entryBehavior.retrieveNextPlacesNumber()
+                }
                 AreaScreen(
                     numberOfPlaces = numberOfPlaces
                 )
             }
 
             composable(NavItem.HomeNavItem.Total.baseRoute) {
-                val placesScreenState by placesScreenViewModel.container.stateFlow.collectAsState()
+                val placesScreenState by placesScreenViewModel
+                    .container
+                    .stateFlow
+                    .collectAsState()
                 val placesScreenSideEffect by placesScreenViewModel
                     .container
                     .sideEffectFlow
@@ -131,35 +147,5 @@ fun HomeHostScreen(
                 )
             }
         }
-    }
-}
-
-@ExperimentalMaterial3Api
-@Composable
-@Preview
-fun HomeScreenPreview() {
-    FyndTheme {
-        HomeHostScreen(
-            homeState = HomeScreenViewModel.State(),
-            homeSideEffect = HomeScreenViewModel.SideEffect.Idle,
-            entryBehavior = object : EntryBehavior {
-                override fun onScreenLoad() {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onNumberClick(number: Int) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onTabSelected(selectedTab: HomeScreenViewModel.State.HomeTabs) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun retrieveNextPlacesNumber() {
-                    TODO("Not yet implemented")
-                }
-            },
-            placesScreenViewModel = PlacesScreenViewModel()
-        )
     }
 }

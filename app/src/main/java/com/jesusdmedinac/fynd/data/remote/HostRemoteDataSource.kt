@@ -1,6 +1,7 @@
 package com.jesusdmedinac.fynd.data.remote
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.jesusdmedinac.fynd.data.remote.mapper.MapToHostUserMapper
 import com.jesusdmedinac.fynd.data.remote.mapper.PasswordStringHasher
 import com.jesusdmedinac.fynd.data.remote.mapper.SignUpHostUserCredentialsToMapMapper
@@ -20,6 +21,8 @@ interface HostRemoteDataSource {
     suspend fun getHostUserBy(email: String): Flow<HostUser>
     suspend fun signIn(signInHostUserCredentials: SignInHostUserCredentials): HostUser
     suspend fun signUp(signUpHostUserCredentials: SignUpHostUserCredentials): HostUser
+    suspend fun updateColumnsBy(leaderEmail: String, columns: String): Result<Unit>
+    suspend fun updateRowsBy(leaderEmail: String, rows: String): Result<Unit>
 }
 
 class HostRemoteDataSourceImpl @Inject constructor(
@@ -28,11 +31,17 @@ class HostRemoteDataSourceImpl @Inject constructor(
     private val passwordStringHasher: PasswordStringHasher,
     private val mapToHostUserMapper: MapToHostUserMapper,
 ) : HostRemoteDataSource {
+    private var getHostUserByListenerRegistration: ListenerRegistration? = null
 
     override suspend fun getHostUserBy(email: String): Flow<HostUser> = callbackFlow {
-        firestore.collection("hosts")
+        getHostUserByListenerRegistration?.run {
+            remove()
+            getHostUserByListenerRegistration = null
+        }
+        getHostUserByListenerRegistration = firestore
+            .collection("hosts")
             .document(email)
-            .addSnapshotListener { nullableDocumentSnapshot, firebaseFirestoreException ->
+            .addSnapshotListener { nullableDocumentSnapshot, _ ->
                 val documentSnapshot = nullableDocumentSnapshot ?: return@addSnapshotListener
                 if (!documentSnapshot.exists()) return@addSnapshotListener
                 val data = documentSnapshot.data ?: return@addSnapshotListener
@@ -97,6 +106,30 @@ class HostRemoteDataSourceImpl @Inject constructor(
                 }
         }
     }
+
+    override suspend fun updateColumnsBy(leaderEmail: String, columns: String): Result<Unit> =
+        suspendCancellableCoroutine { continuation ->
+            firestore
+                .collection("hosts")
+                .document(leaderEmail)
+                .update(
+                    mapOf(
+                        "columnsOfPlaces" to columns
+                    )
+                )
+        }
+
+    override suspend fun updateRowsBy(leaderEmail: String, rows: String): Result<Unit> =
+        suspendCancellableCoroutine { continuation ->
+            firestore
+                .collection("hosts")
+                .document(leaderEmail)
+                .update(
+                    mapOf(
+                        "rowsOfPlaces" to rows
+                    )
+                )
+        }
 
     private suspend fun generateQRCode(): String {
         var qrCode = ""

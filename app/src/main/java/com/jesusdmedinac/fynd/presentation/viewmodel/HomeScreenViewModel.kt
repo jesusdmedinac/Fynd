@@ -34,7 +34,7 @@ class HomeScreenViewModel @Inject constructor(
 
     override fun onScreenLoad() {
         intent {
-            runCatching { getCurrentHostUseCase() }
+            getCurrentHostUseCase()
                 .onFailure { Log.e("dani", it.message.toString()) }
                 .onSuccess { host ->
                     val stateHost = domainHostToHomeScreenStateHostMapper.map(host)
@@ -60,11 +60,11 @@ class HomeScreenViewModel @Inject constructor(
     override fun onNumberClick(number: Int) {
         intent {
             runCatching { getLeaderUseCase() }
+                .onFailure { Log.e("dani", it.message.toString()) }
                 .onSuccess { leader ->
                     val email = leader.email
                     setNumberOfPlacesUseCase(email, number)
                 }
-                .onFailure { println(it) }
         }
     }
 
@@ -83,6 +83,7 @@ class HomeScreenViewModel @Inject constructor(
     override fun retrieveNextPlacesNumber() {
         intent {
             runCatching { getLeaderUseCase() }
+                .onFailure { Log.e("dani", it.message.toString()) }
                 .onSuccess { leader ->
                     val email = leader.email
                     getNumberOfPlacesUseCase(email)
@@ -90,7 +91,6 @@ class HomeScreenViewModel @Inject constructor(
                             reduce { state.copy(numberOfPlaces = numberOfPlaces) }
                         }
                 }
-                .onFailure { println(it) }
         }
     }
 

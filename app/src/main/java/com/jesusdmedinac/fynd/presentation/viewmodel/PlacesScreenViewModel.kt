@@ -1,9 +1,21 @@
 package com.jesusdmedinac.fynd.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jesusdmedinac.fynd.domain.model.Host
+import com.jesusdmedinac.fynd.domain.model.Place
+import com.jesusdmedinac.fynd.domain.usecase.*
+import com.jesusdmedinac.fynd.presentation.mapper.DomainPlaceToUiPlaceMapper
+import com.jesusdmedinac.fynd.presentation.mapper.UiPlaceToDomainPlaceMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.container
@@ -14,19 +26,25 @@ import org.orbitmvi.orbit.syntax.simple.reduce
 import javax.inject.Inject
 
 @HiltViewModel
-class PlacesScreenViewModel @Inject constructor() :
-    ViewModel(),
-    PlacesScreenBehavior,
+class PlacesScreenViewModel @Inject constructor(
+    private val updatePlacesByLeaderEmailUseCase: UpdatePlacesByLeaderEmailUseCase,
+    private val uiPlaceToDomainPlaceMapper: UiPlaceToDomainPlaceMapper,
+    private val retrievePlacesByLeaderEmailUseCase: RetrievePlacesByLeaderEmailUseCase,
+    private val getPlacesByLeaderEmailUseCase: GetPlacesByLeaderEmailUseCase,
+    private val domainPlaceToUiPlaceMapper: DomainPlaceToUiPlaceMapper,
+    private val updateColumnsByLeaderEmailUseCase: UpdateColumnsByLeaderEmailUseCase,
+    private val updateRowsByLeaderEmailUseCase: UpdateRowsByLeaderEmailUseCase,
+    private val getCurrentHostUseCase: GetCurrentHostUseCase,
+) : ViewModel(), PlacesScreenBehavior,
     ContainerHost<PlacesScreenViewModel.State, PlacesScreenViewModel.SideEffect> {
-    override val container: Container<State, SideEffect> =
-        viewModelScope.container(State())
+    override val container: Container<State, SideEffect> = viewModelScope.container(State())
 
     data class State(
         val columnsText: String = "0",
         val rowsText: String = "0",
         val invalidColumnsLimit: Boolean = false,
         val invalidRowsLimit: Boolean = false,
-        val places: Set<Place> = emptySet()
+        val places: List<Place> = emptyList(),
     ) {
         val total: Int
             get() = if (columnsText.isEmpty() || rowsText.isEmpty()) 0
@@ -36,25 +54,29 @@ class PlacesScreenViewModel @Inject constructor() :
         val columns: Int
             get() = if (columnsText.isEmpty()) 0
             else {
-                columnsText.toInt() + 1
+                val intValue = columnsText.toIntOrNull() ?: 0
+                intValue + 1
             }
 
         val rows: Int
             get() = if (rowsText.isEmpty()) 0
             else {
-                rowsText.toInt() + 1
+                val intValue = rowsText.toIntOrNull() ?: 0
+                intValue + 1
             }
 
-        fun isPlaceOccupied(place: Place): Boolean = place in places
+        fun placeBy(cell: Int): Place? = places.firstOrNull { it.cell == cell }
 
         data class Place(
             val cell: Int,
-            val state: State
+            val state: State = State.OCCUPIED,
         ) {
-            sealed class State {
-                object Occupied : State()
-                object Unavailable : State()
+            enum class State {
+                EMPTY, OCCUPIED, UNAVAILABLE
             }
+
+            fun isOccupied() = state == State.OCCUPIED
+            fun isNotAvailable() = state == State.UNAVAILABLE
         }
     }
 
@@ -68,6 +90,51 @@ class PlacesScreenViewModel @Inject constructor() :
         object Idle : SideEffect()
         object ColumnsLimitReached : SideEffect()
         object RowsLimitReached : SideEffect()
+    }
+
+    lateinit var retrievePlacesByLeaderEmailUseCaseDeferred: Deferred<Result<Unit>>
+    lateinit var getPlacesByLeaderEmailUseCaseDeferred: Deferred<Result<Flow<List<Place>>>>
+    lateinit var getCurrentHostUseCaseDeferred: Deferred<Result<Host>>
+
+    override fun onScreenLoad() {
+        if (!::retrievePlacesByLeaderEmailUseCaseDeferred.isInitialized) {
+            retrievePlacesByLeaderEmailUseCaseDeferred = viewModelScope.async {
+                retrievePlacesByLeaderEmailUseCase()
+                    .onFailure { Log.e("dani", it.message.toString()) }
+            }
+        }
+        if (!::getPlacesByLeaderEmailUseCaseDeferred.isInitialized) {
+            getPlacesByLeaderEmailUseCaseDeferred = viewModelScope.async {
+                getPlacesByLeaderEmailUseCase()
+                    .onFailure { Log.e("dani", it.message.toString()) }
+                    .onSuccess { flowOfPlaces ->
+                        flowOfPlaces.collect { places ->
+                            intent {
+                                reduce {
+                                    val uiPlaces =
+                                        places.map(domainPlaceToUiPlaceMapper::map)
+                                    state.copy(places = uiPlaces)
+                                }
+                            }
+                        }
+                    }
+            }
+        }
+        if (!::getCurrentHostUseCaseDeferred.isInitialized) {
+            getCurrentHostUseCaseDeferred = viewModelScope.async {
+                getCurrentHostUseCase()
+                    .onFailure { Log.d("dani", it.message.toString()) }
+                    .onSuccess { host ->
+                        onColumnsValueChange(host.columnsOfPlaces)
+                        onRowsValueChange(host.rowsOfPlaces)
+                    }
+            }
+        }
+        intent {
+            getPlacesByLeaderEmailUseCaseDeferred.await()
+            retrievePlacesByLeaderEmailUseCaseDeferred.await()
+            getCurrentHostUseCaseDeferred.await()
+        }
     }
 
     override fun onColumnsValueChange(columnsText: String) {
@@ -85,6 +152,8 @@ class PlacesScreenViewModel @Inject constructor() :
                     invalidColumnsLimit = invalidColumnsLimit,
                 )
             }
+            updateColumnsByLeaderEmailUseCase(state.columnsText)
+                .onFailure { Log.d("dani", it.message.toString()) }
         }
     }
 
@@ -103,6 +172,8 @@ class PlacesScreenViewModel @Inject constructor() :
                     invalidRowsLimit = invalidRowsLimit,
                 )
             }
+            updateRowsByLeaderEmailUseCase(state.rowsText)
+                .onFailure { Log.d("dani", it.message.toString()) }
         }
     }
 
@@ -130,22 +201,51 @@ class PlacesScreenViewModel @Inject constructor() :
         }
     }
 
-    override fun onPlaceClicked(place: State.Place) {
+    override fun onPlaceClick(cell: Int) {
         intent {
+            val places = state.places.toMutableList()
+            val newPlaces = places.apply {
+                val place = firstOrNull { it.cell == cell } ?: run {
+                    add(State.Place(cell))
+                    return@apply
+                }
+
+                val isOccupied = place.state == State.Place.State.OCCUPIED
+                remove(place)
+                if (isOccupied) {
+                    add(place.copy(state = State.Place.State.EMPTY))
+                } else {
+                    add(place.copy(state = State.Place.State.OCCUPIED))
+                }
+            }
             reduce {
-                val places = state.places.toMutableSet()
-                val newPlaces = places
-                    .apply {
-                        val isOccupied = (place in state.places
-                                && place.state == State.Place.State.Occupied)
-                        if (isOccupied) {
-                            remove(place)
-                        } else {
-                            add(place)
-                        }
-                    }
                 state.copy(places = newPlaces)
             }
+            updatePlacesByLeaderEmailUseCase(newPlaces.map(uiPlaceToDomainPlaceMapper::map))
+        }
+    }
+
+    override fun onPlaceLongClick(cell: Int) {
+        intent {
+            val places = state.places.toMutableList()
+            val newPlaces = places.apply {
+                val place = firstOrNull { it.cell == cell } ?: run {
+                    add(State.Place(cell))
+                    return@apply
+                }
+
+                val isAvailable = place.state != State.Place.State.UNAVAILABLE
+                remove(place)
+                if (isAvailable) {
+                    add(place.copy(state = State.Place.State.UNAVAILABLE))
+                } else {
+                    add(place.copy(state = State.Place.State.EMPTY))
+                }
+            }
+            reduce {
+                state.copy(places = newPlaces)
+            }
+            updatePlacesByLeaderEmailUseCase(newPlaces.map(uiPlaceToDomainPlaceMapper::map))
         }
     }
 
@@ -156,10 +256,12 @@ class PlacesScreenViewModel @Inject constructor() :
 }
 
 interface PlacesScreenBehavior {
+    fun onScreenLoad()
     fun onColumnsValueChange(columnsText: String)
     fun onRowsValueChange(rowsText: String)
     fun isCellRowHeader(cell: Int, columns: Int): Boolean
     fun isCellColumnHeader(cell: Int, columns: Int): Boolean
     fun cellText(cell: Int, columns: Int): String
-    fun onPlaceClicked(place: PlacesScreenViewModel.State.Place)
+    fun onPlaceClick(cell: Int)
+    fun onPlaceLongClick(cell: Int)
 }

@@ -7,4 +7,6 @@ data class HostUser(
     val qrCode: String,
     val isLoggedIn: Boolean,
     val isLeader: Boolean,
+    val rowsOfPlaces: String,
+    val columnsOfPlaces: String,
 )

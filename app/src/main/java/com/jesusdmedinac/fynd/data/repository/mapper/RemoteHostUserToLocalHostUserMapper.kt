@@ -1,6 +1,5 @@
 package com.jesusdmedinac.fynd.data.repository.mapper
 
-import android.util.Log
 import javax.inject.Inject
 import com.jesusdmedinac.fynd.data.local.model.HostUser as LocalHostUser
 import com.jesusdmedinac.fynd.data.remote.model.HostUser as RemoteHostUser
@@ -15,6 +14,8 @@ class RemoteHostUserToLocalHostUserMapper @Inject constructor() {
             isLoggedIn,
             isLeader,
             isOnboardingWelcomeScreenViewed = false,
+            rowsOfPlaces,
+            columnsOfPlaces,
         )
     }
 }

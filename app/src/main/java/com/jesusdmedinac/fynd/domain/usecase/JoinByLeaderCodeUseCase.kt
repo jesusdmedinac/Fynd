@@ -8,13 +8,15 @@ class JoinByLeaderCodeUseCase @Inject constructor(
     private val leaderRepository: LeaderRepository,
     private val hostRepository: HostRepository,
 ) {
-    suspend operator fun invoke(leaderCode: String) {
-        val currentHost = hostRepository.getCurrentHost()
-            ?: throw Throwable("Current host is not available for join leader")
-        val hostCode = currentHost.qrCode
-        leaderRepository.joinBy(
-            leaderCode,
-            hostCode,
-        )
-    }
+    suspend operator fun invoke(leaderCode: String): Result<Unit> = hostRepository.getCurrentHost()
+        .map { currentHost ->
+            val hostCode = currentHost.qrCode
+            return leaderRepository.joinBy(
+                leaderCode,
+                hostCode,
+            )
+        }
+        .onFailure {
+            return Result.failure(it)
+        }
 }

@@ -22,14 +22,13 @@ class LeaderRepositoryImpl @Inject constructor(
     override suspend fun joinBy(
         leaderCode: String,
         hostCode: String,
-    ) {
-        withContext(ioDispatcher) {
-            val remoteHostUser = leaderRemoteDataSource.joinBy(leaderCode, hostCode)
-            val localHostUser = remoteHostUserToLocalHostUserMapper
-                .map(remoteHostUser)
-                .copy(isLeader = true)
-            hostDao.insertHostUser(localHostUser)
-        }
+    ): Result<Unit> = withContext(ioDispatcher) {
+        val remoteHostUser = leaderRemoteDataSource.joinBy(leaderCode, hostCode)
+        val localHostUser = remoteHostUserToLocalHostUserMapper
+            .map(remoteHostUser)
+            .copy(isLeader = true)
+        hostDao.insertHostUser(localHostUser)
+        Result.success(Unit)
     }
 
     override suspend fun getCurrentLeader(): Host? = withContext(ioDispatcher) {
@@ -52,6 +51,8 @@ class LeaderRepositoryImpl @Inject constructor(
                 isLoggedIn,
                 isLeader,
                 isOnboardingWelcomeScreenViewed,
+                rowsOfPlaces,
+                columnsOfPlaces,
             )
         )
     } ?: run { Session.HostIsNotLoggedIn }

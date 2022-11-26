@@ -1,5 +1,6 @@
 package com.jesusdmedinac.fynd.presentation.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,6 +20,7 @@ import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.*
 import kotlinx.coroutines.flow.Flow
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Composable
 fun FyndApp(
@@ -125,61 +127,5 @@ fun FyndApp(
                 placesScreenViewModel,
             )
         }
-    }
-}
-
-@ExperimentalMaterial3Api
-@Composable
-@Preview
-fun FyndAppPreview() {
-    val hostRepository = object : HostRepository {
-        override suspend fun retrieveCurrentSession(email: String) {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun getCurrentSession(): Flow<Session> {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun getCurrentHost(): Host? {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun signUp(signUpUserCredentials: SignUpUserCredentials): SignUpResult {
-            TODO("Not yet implemented")
-        }
-    }
-    FyndTheme {
-        FyndApp(
-            launchScanner = {},
-            mainActivityViewModel = MainActivityViewModel(
-                joinByLeaderCodeUseCase = JoinByLeaderCodeUseCase(
-                    leaderRepository = object : LeaderRepository {
-                        override suspend fun joinBy(leaderCode: String, hostCode: String) {
-                            TODO("Not yet implemented")
-                        }
-
-                        override suspend fun getCurrentLeader(): Host? {
-                            TODO("Not yet implemented")
-                        }
-
-                        override suspend fun isLeader(email: String): Boolean {
-                            TODO("Not yet implemented")
-                        }
-                    },
-                    hostRepository = hostRepository
-                ),
-                retrieveCurrentSessionUseCase = RetrieveCurrentSessionUseCase(
-                    hostRepository = hostRepository,
-                    getCurrentHostUseCase = GetCurrentHostUseCase(
-                        hostRepository = hostRepository
-                    )
-                ),
-            ),
-        )
     }
 }

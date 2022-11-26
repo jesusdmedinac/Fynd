@@ -43,10 +43,12 @@ class HostRepositoryImpl @Inject constructor(
         .flowOn(ioDispatcher)
         .map { it.toSession() }
 
-    override suspend fun getCurrentHost(): Host? = withContext(ioDispatcher) {
-        (hostDao.loggedHostUser()
-            ?.toSession() as? Session.LoggedHost)
-            ?.host
+    override suspend fun getCurrentHost(): Result<Host> = withContext(ioDispatcher) {
+        val loggedHostUser = hostDao.loggedHostUser()
+            ?: return@withContext Result.failure(Throwable("Current host is not available"))
+        val loggedHost = loggedHostUser.toSession() as? Session.LoggedHost
+            ?: return@withContext Result.failure(Throwable("Current host is not available"))
+        Result.success(loggedHost.host)
     }
 
     override suspend fun signIn(signInUserCredentials: SignInUserCredentials): SignInResult =
@@ -81,6 +83,12 @@ class HostRepositoryImpl @Inject constructor(
             SignUpResult.Error(Throwable("User is Logged In"))
         }
 
+    override suspend fun updateColumnsBy(leaderEmail: String, columns: String): Result<Unit> =
+        hostRemoteDataSource.updateColumnsBy(leaderEmail, columns)
+
+    override suspend fun updateRowsBy(leaderEmail: String, rows: String): Result<Unit> =
+        hostRemoteDataSource.updateRowsBy(leaderEmail, rows)
+
     private fun SignInUserCredentials.toSignInHostUserCredentials() = SignInHostUserCredentials(
         email,
         password,
@@ -100,6 +108,8 @@ class HostRepositoryImpl @Inject constructor(
         isLoggedIn,
         isLeader,
         isOnboardingWelcomeScreenViewed = false,
+        rowsOfPlaces,
+        columnsOfPlaces,
     )
 
     private fun LocalHostUser?.toSession(): Session = this?.run {
@@ -111,7 +121,9 @@ class HostRepositoryImpl @Inject constructor(
                 qrCode,
                 isLoggedIn,
                 isLeader,
-                isOnboardingWelcomeScreenViewed
+                isOnboardingWelcomeScreenViewed,
+                rowsOfPlaces,
+                columnsOfPlaces,
             )
         )
     } ?: run { Session.HostIsNotLoggedIn }

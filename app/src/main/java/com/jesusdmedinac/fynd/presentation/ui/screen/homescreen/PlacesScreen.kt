@@ -1,7 +1,9 @@
 package com.jesusdmedinac.fynd.presentation.ui.screen.homescreen
 
+import android.content.res.Configuration
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,6 +26,7 @@ import com.jesusdmedinac.fynd.presentation.ui.theme.FyndTheme
 import com.jesusdmedinac.fynd.presentation.viewmodel.PlacesScreenBehavior
 import com.jesusdmedinac.fynd.presentation.viewmodel.PlacesScreenViewModel
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Composable
 fun PlacesScreen(
@@ -41,6 +46,10 @@ fun PlacesScreen(
             }
             else -> Unit
         }
+    }
+
+    LaunchedEffect(Unit) {
+        placesScreenBehavior.onScreenLoad()
     }
 
     Scaffold(modifier = Modifier.padding(16.dp)) {
@@ -160,28 +169,13 @@ fun PlacesScreen(
                                     )
                                 }
                             } else {
-                                val occupiedPlace = PlacesScreenViewModel.State.Place(
+                                PlaceButton(
+                                    modifier = Modifier.height(64.dp),
+                                    placesScreenState,
                                     cell,
-                                    PlacesScreenViewModel.State.Place.State.Occupied
+                                    onPlaceClick = placesScreenBehavior::onPlaceClick,
+                                    onPlaceLongClick = placesScreenBehavior::onPlaceLongClick,
                                 )
-                                val buttonBackground = MaterialTheme.colorScheme.run {
-                                    if (placesScreenState.isPlaceOccupied(occupiedPlace))
-                                        primary
-                                    else onPrimary
-                                }
-                                    Button(
-                                        modifier = Modifier
-                                            .fillMaxSize(),
-                                        onClick = {
-                                            placesScreenBehavior.onPlaceClicked(occupiedPlace)
-                                        },
-                                        border = BorderStroke(4.dp, MaterialTheme.colorScheme.primary),
-                                        colors = ButtonDefaults.outlinedButtonColors(
-                                            containerColor = buttonBackground,
-                                        ),
-                                        content = {},
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
                             }
                         }
                     }
@@ -191,37 +185,66 @@ fun PlacesScreen(
     }
 }
 
-@ExperimentalMaterial3Api
+@ExperimentalFoundationApi
 @Composable
+private fun PlaceButton(
+    modifier: Modifier = Modifier,
+    placesScreenState: PlacesScreenViewModel.State,
+    cell: Int,
+    onPlaceLongClick: (Int) -> Unit,
+    onPlaceClick: (Int) -> Unit,
+) {
+    val buttonBackground = MaterialTheme.colorScheme.run {
+        val place =
+            placesScreenState.placeBy(cell) ?: return@run onPrimary
+        when {
+            place.isOccupied() -> primary
+            place.isNotAvailable() -> error
+            else -> onPrimary
+        }
+    }
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .border(
+                BorderStroke(
+                    4.dp,
+                    MaterialTheme.colorScheme.primary
+                )
+            )
+            .background(buttonBackground)
+            .combinedClickable(
+                onLongClick = {
+                    onPlaceLongClick(cell)
+                },
+                onClick = {
+                    onPlaceClick(cell)
+                },
+            ),
+    )
+}
+
+@ExperimentalFoundationApi
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview
-fun FyndAppPreview() {
+fun PlaceButtonPreview() {
     FyndTheme {
-        PlacesScreen(
-            placesScreenBehavior = object : PlacesScreenBehavior{
-                override fun onColumnsValueChange(columnsText: String) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onRowsValueChange(rowsText: String) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun isCellRowHeader(cell: Int, columns: Int): Boolean {
-                    TODO("Not yet implemented")
-                }
-
-                override fun isCellColumnHeader(cell: Int, columns: Int): Boolean {
-                    TODO("Not yet implemented")
-                }
-
-                override fun cellText(cell: Int, columns: Int): String {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onPlaceClicked(place: PlacesScreenViewModel.State.Place) {
-                    TODO("Not yet implemented")
-                }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            items(4) {
+                PlaceButton(
+                    modifier = Modifier.height(64.dp),
+                    placesScreenState = PlacesScreenViewModel.State(),
+                    cell = 1,
+                    onPlaceLongClick = {},
+                    onPlaceClick = {},
+                )
             }
-        )
+        }
     }
 }

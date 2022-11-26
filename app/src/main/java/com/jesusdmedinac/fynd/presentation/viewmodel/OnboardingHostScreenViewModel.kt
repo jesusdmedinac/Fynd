@@ -32,7 +32,7 @@ class OnboardingHostScreenViewModel @Inject constructor(
 
     override fun onScreenLoad() {
         intent {
-            runCatching { getCurrentHostUseCase() }
+            getCurrentHostUseCase()
                 .onFailure { Log.e("dani", it.message.toString()) }
                 .onSuccess { host ->
                     val stateHost = domainHostToOnboardingMainScreenStateHostMapper.map(host)
@@ -56,7 +56,6 @@ class OnboardingHostScreenViewModel @Inject constructor(
             }
             is State.Session.HostIsLoggedIn -> {
                 val host = uiSession.host
-                Log.e("dani", "${isHostALeaderUseCase(host.email)}")
                 if (isHostALeaderUseCase(host.email)) {
                     postSideEffect(SideEffect.NavigateToPlacesScreen)
                 }

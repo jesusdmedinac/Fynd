@@ -17,9 +17,10 @@ class RetrieveCurrentSessionUseCase @Inject constructor(
         coroutineScope.launch {
             while (true) {
                 delay(5000)
-                runCatching { getCurrentHostUseCase() }
+                getCurrentHostUseCase()
                     .onFailure { Log.e("dani", it.message.toString()) }
-                    .onSuccess { host -> hostRepository.retrieveCurrentSession(host.email) }
+                    .map { it.email }
+                    .onSuccess { email -> hostRepository.retrieveCurrentSession(email) }
             }
         }
     }

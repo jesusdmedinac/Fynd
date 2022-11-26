@@ -15,4 +15,6 @@ data class HostUser(
     val isLoggedIn: Boolean,
     val isLeader: Boolean,
     val isOnboardingWelcomeScreenViewed: Boolean,
+    val rowsOfPlaces: String,
+    val columnsOfPlaces: String,
 )

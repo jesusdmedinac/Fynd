@@ -29,7 +29,7 @@ class MainScreenViewModel @Inject constructor(
 
     override fun getCurrentSession() {
         intent {
-            runCatching { getCurrentHostUseCase() }
+            getCurrentHostUseCase()
                 .onFailure { Log.e("dani", it.message.toString()) }
                 .onSuccess { host ->
                     val stateHost = domainHostToMainScreenStateHostMapper.map(host)
