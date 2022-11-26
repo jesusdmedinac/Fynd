@@ -197,6 +197,7 @@ class PlacesScreenViewModel @Inject constructor(
     }
 
     override fun onPlaceClick(cell: Int) {
+        Log.w("dani", "onPlaceClick")
         intent {
             val places = state.places.toMutableList()
             val newPlaces = places.apply {
@@ -221,11 +222,12 @@ class PlacesScreenViewModel @Inject constructor(
     }
 
     override fun onPlaceLongClick(cell: Int) {
+        Log.w("dani", "onPlaceLongClick")
         intent {
             val places = state.places.toMutableList()
             val newPlaces = places.apply {
                 val place = firstOrNull { it.cell == cell } ?: run {
-                    add(State.Place(cell))
+                    add(State.Place(cell, State.Place.State.UNAVAILABLE))
                     return@apply
                 }
 
