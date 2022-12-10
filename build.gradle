@@ -15,12 +15,6 @@ plugins {
 }
 
 subprojects {
-    repositories {
-        google()
-        mavenLocal()
-        mavenCentral()
-    }
-
     version = '4.3.0'
     group = 'com.journeyapps'
 
