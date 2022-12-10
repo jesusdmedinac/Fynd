@@ -1,0 +1,2 @@
+json_key_file("pc-api-8840813741513327756-64-d1f563d5c5b8.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
+package_name("com.jesusdmedinac.fynd") # e.g. com.krausefx.app

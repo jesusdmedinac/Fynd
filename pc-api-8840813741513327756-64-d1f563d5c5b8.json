@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "pc-api-8840813741513327756-64",
+  "private_key_id": "d1f563d5c5b83893a9ef89849fb9da14eb484702",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDa0ncwZrslCfc/\nlBqHHx+7OMsxWeQO1m3ZsqSYZvpOedonenWqw9MCOCRhLH4DvhxBxOZHOINVJbHK\nAdGoQuo7n1H6pbp9yIw2h4/JtMbaS6Cp979mEkDMU8jSgeK6zyg9VPhwNnKbnev2\nQx8NEevRFyu8SM8znGUhLN/gVlE/ov7GxuX4VczqpqGdG0p1r0uNYGQPXnINPi8k\n3kmoP5JoggPPigulEyg7s4f1LLGqHOz4i7nBVjCI+tMd/DICIb5IrjO8HQh17B3F\nud+wO7IeszoEm8takzBGEvCiFIpTm/jP1JPfwx/A8nbzW84QzqcDU9cAVFGa3roa\n1y/fqdkNAgMBAAECggEAFHIg391hdBsDxqWEewad9OTgG3reM8K2XeZyuai5j5aU\nGyc2kl+cujLbt1asaZYcVsrah2IQ52ZPv+O+nr2t3CdNRiGxFKql6zxsY3joMaJq\nXyc+c3+WHWFgvMaVFEZh6KUlV3rG56JwV0C7SIHZql5DYGLfNV/SFTD3tCLskYjx\nhEBmRYmaaY5aEiSfTVvDyu5EJGYER+YzvbavKJwgjz0jzyqVSKsGMYexltKzzZXu\nvDAIqSLo4wCbRwWEaUiDmEYFxxAFKQP4iR60phWcOje/V6EjmqMnahSFvp065XMU\nyx9NggdSPmDQE2SjqhCxgDqoH7VuGhG4MsDMjD9AswKBgQD4Y64PT+UfTdT4PWeU\nW535WoyWOZk93K8Igz/dVNrLKd9GWLzQ646cs/oaUPteUHV2pl9NbqFmKw4OozU3\n54u4rbjHK2rLCDHUcvjpJt9U36cqhE9ifTX/4u6deC7QuelfhiGgAR4ma08bNE4q\nzczz3bKaGPQtWVhRUocC70y/KwKBgQDhht2efnjVHNw2XYUe48eRluNPouK2Jct4\nqJUrHeQHduta+hPXkiT2B3JlB1LkAiTeBCGPVB/q9V4yYfP2lF7XxhOrL/HBTf3H\nwx5eHr6IcHEv5/UmgbwroeqeaLZQ/m4284hTZ2DsTbanYsyLDCRatZUu13dPZmJ3\nOkbhyllspwKBgH9t9CBa5rsWnQn1xqvwDK2ebL2tMxbvnsSJQTx1igHsq2VVpRix\noGp4UvkpTqxmLrz+Qaph9V+K+x07UdQqcB4A0eksNw+OVrIdgeFrVewfCY3gbzGh\n9xAeBji3LZ1bo4SkNZ/2stcW+nCEdw2yo1EBDd3Mq4iQa6Tc5/LzfbYdAoGAJq+l\n0IxNWfFLbR/5t+TG1RiXAZAlZ61wC9CPVggYl5c0pDSFttLg+Dsqyl3JQEeF33fB\n8f4yQ3G3qNjYqpGk+0qFETZ2N/yS7fNwgCCx+mGfaOJXUTWr+6gYwPehXp9mdJKt\n7fCr1Z03Gdt+ztNUYSMI5jIby0j61wzuH8lAMb0CgYEAyqxVtCn+LPGH4DDkwS46\nnc3LdzB5Vt74xMFW12ZFn6u7QGDvqJaWN8LHEXIATMwbe6KJzXCxZfY703WWsJCn\nLVhzh8hF41G1uheF+ypz3GoS2dXLYWyjatyXDWaVqiIPwGcqkm7uWz0eH1b6EN/3\nzJtNgATfcnLN6TiH+eq3b5k=\n-----END PRIVATE KEY-----\n",
+  "client_email": "fynd-app@pc-api-8840813741513327756-64.iam.gserviceaccount.com",
+  "client_id": "116619303473042729742",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/fynd-app%40pc-api-8840813741513327756-64.iam.gserviceaccount.com"
+}
